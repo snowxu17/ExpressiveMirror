@@ -25,6 +25,18 @@ void ofApp::setup(){
     
     // Setup tracker
     tracker.setup();
+    
+    
+    //// ------3D setup------
+    ofSetVerticalSync(true);
+    
+    model.loadModel("modelnmae.fbx", 50);
+    curFileInfo = ".fbx";
+    
+    model.setRotation(0, 180, 0, 0, 0);
+    model.setScale(1, 1, 1);
+    // Not sure if we need light for videograbber yet
+    light.setPosition(0, 0, 500);
 }
 
 //--------------------------------------------------------------
@@ -92,7 +104,20 @@ void ofApp::draw(){
     }
     
     ofPopMatrix();
-
+    
+    
+    //// ------3D draw models------
+    ofEnableDepthTest();
+    light.enable();
+    cam.begin();
+    ofColor(255, 255);
+    
+    // draw all file types that are loaded into model.
+    model.drawFaces();
+    
+    cam.end();
+    light.disable();
+    ofDisableDepthTest();
 }
 
 
@@ -132,4 +157,44 @@ sample_type ofApp::makeSample(){
         s(i*2+1) = relativeMouthPoints[i].y;
     }
     return s;
+}
+
+void ofApp::switchModel(int val)
+{
+    //Switch drawing utensil model based on face expression
+//    switch(val)
+//    {
+//        case '1':
+//            bUsingMesh = false;
+//            model.loadModel("penguin.dae");
+//            model.setRotation(0, 180, 1, 0, 0);
+//            model.setScale(0.9, 0.9, 0.9);
+//            cam.setDistance(700);
+//            curFileInfo = ".dae";
+//            break;
+//        case '2':
+//            bUsingMesh = false;
+//            model.loadModel("penguin.3ds");
+//            model.setRotation(0, 180, 1, 0, 0);
+//            model.setScale(0.9, 0.9, 0.9);
+//            cam.setDistance(700);
+//            curFileInfo = ".3ds";
+//            break;
+//        case '3':
+//            bUsingMesh = false;
+//            model.loadModel("penguin.ply");
+//            model.setRotation(0, 90, 1, 0, 0);
+//            model.setScale(0.9, 0.9, 0.9);
+//            cam.setDistance(700);
+//            curFileInfo = ".ply";
+//            break;
+//        case '4':
+//            bUsingMesh = false;
+//            model.loadModel("penguin.obj");
+//            model.setRotation(0, 90, 1, 0, 0);
+//            model.setScale(0.9, 0.9, 0.9);
+//            cam.setDistance(700);
+//            curFileInfo = ".obj";
+//            break;
+//    }
 }

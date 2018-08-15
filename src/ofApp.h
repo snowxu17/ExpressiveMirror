@@ -2,7 +2,9 @@
 
 #include "ofMain.h"
 #include "ofxFaceTracker2.h"
-#include "ofxBiquadFilter.h" 
+#include "ofxBiquadFilter.h"
+#include "ofxAssimpModelLoader.h"
+
 
 typedef dlib::matrix<double,40,1> sample_type;
 typedef dlib::radial_basis_kernel<sample_type> kernel_type;
@@ -19,6 +21,8 @@ public:
     void setup();
     void update();
     void draw();
+    void switchModel(int val);
+    
     
     sample_type makeSample();
     
@@ -31,4 +35,12 @@ public:
     ofxBiquadFilter1f oValue;
     
     vector<pfunct_type> learned_functions;
+    
+    ofxAssimpModelLoader model;
+    ofLight    light;
+    
+    // stores the info on the current file.
+    string curFileInfo;
+    
+    ofEasyCam cam;
 };
