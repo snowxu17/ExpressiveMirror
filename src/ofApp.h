@@ -4,6 +4,7 @@
 #include "ofxFaceTracker2.h"
 #include "ofxBiquadFilter.h"
 #include "ofxAssimpModelLoader.h"
+#include "ofxGui.h"
 
 
 typedef dlib::matrix<double,40,1> sample_type;
@@ -22,6 +23,7 @@ public:
     void update();
     void draw();
     void switchModel(int val);
+    void addModelToFace();
     
     
     sample_type makeSample();
@@ -36,11 +38,20 @@ public:
     
     vector<pfunct_type> learned_functions;
     
-    ofxAssimpModelLoader model;
+    ofxAssimpModelLoader mdl;
     ofLight    light;
     
     // stores the info on the current file.
     string curFileInfo;
     
     ofEasyCam cam;
+    float cameraOrbit;
+    
+    
+    //GUI setup
+    ofxPanel gui;
+    ofxFloatSlider lx, ly, lz;
+    ofxFloatSlider lrx, lry, lrz;
+    ofxFloatSlider rx, ry, rz;
+    ofxFloatSlider px, py, pz;
 };

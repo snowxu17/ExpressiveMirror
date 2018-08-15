@@ -2,6 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+    
     learned_functions = vector<pfunct_type>(4);
 
     // Load SVM data model
@@ -9,39 +10,58 @@ void ofApp::setup(){
     dlib::deserialize(ofToDataPath("data_small_smile.func")) >> learned_functions[1];
     dlib::deserialize(ofToDataPath("data_o.func")) >> learned_functions[2];
     dlib::deserialize(ofToDataPath("data_neutral.func")) >> learned_functions[3];
-    
+
     // Setup value filters for the classifer
     neutralValue.setFc(0.04);
     bigSmileValue.setFc(0.04);
     smallSmileValue.setFc(0.04);
     oValue.setFc(0.04);
 
-    // All examples share data files from example-data, so setting data path to this folder
-    // This is only relevant for the example apps
-    ofSetDataPathRoot(ofFile(__BASE_FILE__).getEnclosingDirectory()+"../../model/");
-    
     // Setup grabber
     grabber.setup(1280,720);
-    
+
     // Setup tracker
     tracker.setup();
     
     
+    ///------GUI setup
+    gui.setup();
+    gui.add(lx.setup("light x", 0, 0, 5000));
+    gui.add(ly.setup("light y", 1000, 0, 5000));
+    gui.add(lz.setup("light z", 0, 0, 5000));
+    
+    gui.add(rx.setup("model rotate x", 360, 0, 360));
+    gui.add(ry.setup("model rotate y", 0, 0, 360));
+    gui.add(rz.setup("model rotate z", 360, 0, 360));
+    
+    gui.add(px.setup("model trans x", 0, 0, ofGetWidth()));
+    gui.add(py.setup("model trans y", 0, -ofGetHeight(), ofGetHeight()));
+    gui.add(pz.setup("model trabs z", 0, -1000, 1000));
+    
+    
     //// ------3D setup------
+    ofBackground(255, 255, 255);
+    
     ofSetVerticalSync(true);
     
-    model.loadModel("modelnmae.fbx", 50);
-    curFileInfo = ".fbx";
+    mdl.loadModel("VG18_3.obj", 20);
+    mdl.getMaterialForMesh("VG18_3.obj");
+    curFileInfo = ".obj";
     
-    model.setRotation(0, 180, 0, 0, 0);
-    model.setScale(1, 1, 1);
-    // Not sure if we need light for videograbber yet
-    light.setPosition(0, 0, 500);
+    mdl.setRotation(0, 180, 1, 0, 0);
+    mdl.setScale(0.9, 0.9, 0.9);
+    mdl.setPosition(ofGetWidth()/2, ofGetHeight()/2, 0);
+    light.setPosition(lx, ly, lz);
+    
+    cameraOrbit = 0;
+    cam.setDistance(500);
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
+    
     grabber.update();
+    
     if(grabber.isFrameNew()){
         tracker.update(grabber);
         
@@ -53,6 +73,9 @@ void ofApp::update(){
             neutralValue.update(learned_functions[3](makeSample()));
         }
     }
+    
+//    cameraOrbit += ofGetLastFrameTime() * 20.; // 20 degrees per second;
+//    cam.orbitDeg(cameraOrbit, 0., cam.getDistance(), {0., 0., 0.});
 }
 
 //--------------------------------------------------------------
@@ -68,10 +91,11 @@ void ofApp::draw(){
     
     
     ofPushMatrix();
-    ofTranslate(0, 100);
+    ofTranslate(ofGetWidth() - 350, 100);
+    
     for (int i = 0; i < 4; i++) {
         ofSetColor(255);
-        
+
         string str;
         float val;
         switch (i) {
@@ -92,33 +116,132 @@ void ofApp::draw(){
                 val = neutralValue.value();
                 break;
         }
-        
+
         ofDrawBitmapStringHighlight(str, 20, 0);
-        ofDrawRectangle(20, 20, 300*val, 30);
-        
+        ofDrawRectangle(20, 20, 300 * val, 30);
+
         ofNoFill();
         ofDrawRectangle(20, 20, 300, 30);
-        ofFill();       
-        
+        ofFill();
+
         ofTranslate(0, 70);
     }
-    
+
     ofPopMatrix();
     
     
-    //// ------3D draw models------
+    /// ---------GUI draw----------
+    gui.draw();
+    
+    
+    //// ------3D models draw---------
     ofEnableDepthTest();
-    light.enable();
-    cam.begin();
-    ofColor(255, 255);
+//    cam.begin();
     
-    // draw all file types that are loaded into model.
-    model.drawFaces();
+        ofEnableLighting();
+        light.enable();
+        light.setPosition(lx, ly, lz);
     
-    cam.end();
-    light.disable();
+        // draws all the other file types which are loaded into model.
+//        mdl.setPosition(px, py, pz);
+//        mdl.setRotation(0, 180, rx, ry, rz);
+//        mdl.drawFaces();
+    
+        ofPushMatrix();
+        // Draw tracker and tracker pose
+        addModelToFace();
+
+        ofPopMatrix();
+    
+        light.disable();
+        ofDisableLighting();
+    
+//    cam.end();
     ofDisableDepthTest();
+    
 }
+
+
+void ofApp::addModelToFace()
+{
+    ofPushStyle();
+    
+    tracker.drawDebugPose();
+    
+    for(auto face : tracker.getInstances())
+    {
+        // Apply the pose matrix
+        ofPushView();
+        face.loadPoseMatrix();
+        
+        // Now position 0,0,0 is at the forehead
+        ofSetColor(255,0,0,50);
+        ofDrawRectangle(0, 0, 200, 200);
+        
+        ofPushMatrix();
+        ofSetColor(0,255,0,50);
+        ofRotate(-90, 1, 0, 0);
+        ofDrawRectangle(0, 0, 200, 200);
+        ofPopMatrix();
+        
+        ofPushMatrix();
+        ofSetColor(0,0,255,50);
+        ofRotate(90, 0, 1, 0);
+        ofDrawRectangle(0, 0, 200, 200);
+        ofPopMatrix();
+        
+        //// py = 100 is about hairline
+        mdl.setPosition(px, py, pz);
+        mdl.setRotation(0, 180, rx, ry, rz);
+        mdl.drawFaces();
+        
+        
+        ofPopView();
+    }
+    
+    ofPopStyle();
+    
+    ofDrawBitmapStringHighlight("Tracker fps: "+ofToString(tracker.getThreadFps()), 10, ofGetHeight() - 40);
+    
+}
+
+void ofApp::switchModel(int val)
+{
+    // Maybe also use 2 expression at once??    
+    //Switch drawing utensil model based on face expression
+        switch(val)
+        {
+            case '1':
+                mdl.loadModel("name.obj");
+                mdl.setPosition(0, 0, 0);
+                mdl.setScale(1, 1, 1);
+                curFileInfo = ".obj";
+                break;
+     
+            case '2':
+                mdl.loadModel("name.obj");
+                mdl.setPosition(0, 0, 0);
+                mdl.setScale(1, 1, 1);
+                curFileInfo = ".obj";
+                break;
+                
+            case '3':
+                mdl.loadModel("name.obj");
+                mdl.setPosition(0, 0, 0);
+                mdl.setScale(1, 1, 1);
+                curFileInfo = ".obj";
+                break;
+                
+            case '4':
+                mdl.loadModel("name.obj");
+                mdl.setPosition(0, 0, 0);
+                mdl.setScale(1, 1, 1);
+                curFileInfo = ".obj";
+                break;
+        }
+}
+
+
 
 
 // Function that creates a sample for the classifier containing the mouth and eyes
@@ -157,46 +280,4 @@ sample_type ofApp::makeSample(){
         s(i*2+1) = relativeMouthPoints[i].y;
     }
     return s;
-}
-
-void ofApp::switchModel(int val)
-{
-    // Maybe also use 2 expression at once??
-    
-    //Switch drawing utensil model based on face expression
-//    switch(val)
-//    {
-//        case '1':
-//            bUsingMesh = false;
-//            model.loadModel("penguin.dae");
-//            model.setRotation(0, 180, 1, 0, 0);
-//            model.setScale(0.9, 0.9, 0.9);
-//            cam.setDistance(700);
-//            curFileInfo = ".dae";
-//            break;
-//        case '2':
-//            bUsingMesh = false;
-//            model.loadModel("penguin.3ds");
-//            model.setRotation(0, 180, 1, 0, 0);
-//            model.setScale(0.9, 0.9, 0.9);
-//            cam.setDistance(700);
-//            curFileInfo = ".3ds";
-//            break;
-//        case '3':
-//            bUsingMesh = false;
-//            model.loadModel("penguin.ply");
-//            model.setRotation(0, 90, 1, 0, 0);
-//            model.setScale(0.9, 0.9, 0.9);
-//            cam.setDistance(700);
-//            curFileInfo = ".ply";
-//            break;
-//        case '4':
-//            bUsingMesh = false;
-//            model.loadModel("penguin.obj");
-//            model.setRotation(0, 90, 1, 0, 0);
-//            model.setScale(0.9, 0.9, 0.9);
-//            cam.setDistance(700);
-//            curFileInfo = ".obj";
-//            break;
-//    }
 }
