@@ -24,7 +24,7 @@ void ofApp::setup(){
     tracker.setup();
     
     
-    ///------GUI setup
+    // Setup GUI
     gui.setup();
     gui.add(lx.setup("light x", 0, 0, 5000));
     gui.add(ly.setup("light y", 1000, 0, 5000));
@@ -35,25 +35,37 @@ void ofApp::setup(){
     gui.add(rz.setup("model rotate z", 360, 0, 360));
     
     gui.add(px.setup("model trans x", 0, 0, ofGetWidth()));
-    gui.add(py.setup("model trans y", 0, -ofGetHeight(), ofGetHeight()));
-    gui.add(pz.setup("model trabs z", 0, -1000, 1000));
+    gui.add(py.setup("model trans y", 100, -ofGetHeight(), ofGetHeight()));
+    gui.add(pz.setup("model trabs z", 70, -1000, 1000));
     
     
-    //// ------3D setup------
+    // Setup 3D models
     ofBackground(255, 255, 255);
     
     ofSetVerticalSync(true);
     
-    mdl.loadModel("VG18_3.obj", 20);
-    mdl.getMaterialForMesh("VG18_3.obj");
+//    mdl.setRotation(0, 180, 1, 0, 0);
+//    mdl.setScale(0.9, 0.9, 0.9);
+//    mdl.setPosition(ofGetWidth()/2, ofGetHeight()/2, 0);
+    
+    mdl1.loadModel("VG18_3.obj", 20);
+    mdl1.setPosition(0, 0, 0);
+    mdl1.setScale(1, 1, 1);
+
+    mdl2.loadModel("VG18_1", 20);
+    mdl2.setPosition(0, 0, 0);
+    mdl2.setScale(1, 1, 1);
+    
+    mdl3.loadModel("VG18_9.obj", 20);
+    mdl3.setPosition(0, 0, 0);
+    mdl3.setScale(1, 1, 1);
+
+    mdl4.loadModel("VG18_7.obj");
+    mdl4.setPosition(0, 0, 0);
+    mdl4.setScale(1, 1, 1);
     curFileInfo = ".obj";
     
-    mdl.setRotation(0, 180, 1, 0, 0);
-    mdl.setScale(0.9, 0.9, 0.9);
-    mdl.setPosition(ofGetWidth()/2, ofGetHeight()/2, 0);
     light.setPosition(lx, ly, lz);
-    
-    cameraOrbit = 0;
     cam.setDistance(500);
 }
 
@@ -74,21 +86,19 @@ void ofApp::update(){
         }
     }
     
-//    cameraOrbit += ofGetLastFrameTime() * 20.; // 20 degrees per second;
-//    cam.orbitDeg(cameraOrbit, 0., cam.getDistance(), {0., 0., 0.});
+    switchState();
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
     grabber.draw(0, 0);
-    tracker.drawDebug();
+//    tracker.drawDebug();
     
 #ifndef __OPTIMIZE__
     ofSetColor(ofColor::red);
     ofDrawBitmapString("Warning! Run this app in release mode to get proper performance!",10,60);
     ofSetColor(ofColor::white);
 #endif
-    
     
     ofPushMatrix();
     ofTranslate(ofGetWidth() - 350, 100);
@@ -118,6 +128,7 @@ void ofApp::draw(){
         }
 
         ofDrawBitmapStringHighlight(str, 20, 0);
+        ofDrawBitmapStringHighlight(ofToString(val), 20, 15);
         ofDrawRectangle(20, 20, 300 * val, 30);
 
         ofNoFill();
@@ -130,11 +141,11 @@ void ofApp::draw(){
     ofPopMatrix();
     
     
-    /// ---------GUI draw----------
+    // ---------GUI draw------------
     gui.draw();
     
     
-    //// ------3D models draw---------
+    // ------3D models draw---------
     ofEnableDepthTest();
 //    cam.begin();
     
@@ -148,7 +159,7 @@ void ofApp::draw(){
 //        mdl.drawFaces();
     
         ofPushMatrix();
-        // Draw tracker and tracker pose
+    
         addModelToFace();
 
         ofPopMatrix();
@@ -175,22 +186,22 @@ void ofApp::addModelToFace()
         face.loadPoseMatrix();
         
         // Now position 0,0,0 is at the forehead
-        ofSetColor(255,0,0,50);
-        ofDrawRectangle(0, 0, 200, 200);
+//        ofSetColor(255,0,0,50);
+//        ofDrawRectangle(0, 0, 200, 200);
+//
+//        ofPushMatrix();
+//        ofSetColor(0,255,0,50);
+//        ofRotate(-90, 1, 0, 0);
+//        ofDrawRectangle(0, 0, 200, 200);
+//        ofPopMatrix();
+//
+//        ofPushMatrix();
+//        ofSetColor(0,0,255,50);
+//        ofRotate(90, 0, 1, 0);
+//        ofDrawRectangle(0, 0, 200, 200);
+//        ofPopMatrix();
         
-        ofPushMatrix();
-        ofSetColor(0,255,0,50);
-        ofRotate(-90, 1, 0, 0);
-        ofDrawRectangle(0, 0, 200, 200);
-        ofPopMatrix();
-        
-        ofPushMatrix();
-        ofSetColor(0,0,255,50);
-        ofRotate(90, 0, 1, 0);
-        ofDrawRectangle(0, 0, 200, 200);
-        ofPopMatrix();
-        
-        //// py = 100 is about hairline
+        //// py = 100 is about hairline, pz = 70 looks actually on head
         mdl.setPosition(px, py, pz);
         mdl.setRotation(0, 180, rx, ry, rz);
         mdl.drawFaces();
@@ -200,48 +211,94 @@ void ofApp::addModelToFace()
     }
     
     ofPopStyle();
-    
-    ofDrawBitmapStringHighlight("Tracker fps: "+ofToString(tracker.getThreadFps()), 10, ofGetHeight() - 40);
+
+    ofDrawBitmapStringHighlight("Tracker fps: " + ofToString(tracker.getThreadFps()), 10, ofGetHeight() - 40);
     
 }
 
-void ofApp::switchModel(int val)
+
+void ofApp::switchState()
 {
-    // Maybe also use 2 expression at once??    
-    //Switch drawing utensil model based on face expression
-        switch(val)
+    if (changeState == true)
+    {
+        switchModel(currentState);
+        changeState = false;
+    }
+    
+    if (neutralValue.value() > 0.5)
+    {
+        currentState = NEUTRAL;
+        
+        if(lastState != NEUTRAL)
         {
-            case '1':
-                mdl.loadModel("name.obj");
-                mdl.setPosition(0, 0, 0);
-                mdl.setScale(1, 1, 1);
-                curFileInfo = ".obj";
-                break;
-     
-            case '2':
-                mdl.loadModel("name.obj");
-                mdl.setPosition(0, 0, 0);
-                mdl.setScale(1, 1, 1);
-                curFileInfo = ".obj";
-                break;
-                
-            case '3':
-                mdl.loadModel("name.obj");
-                mdl.setPosition(0, 0, 0);
-                mdl.setScale(1, 1, 1);
-                curFileInfo = ".obj";
-                break;
-                
-            case '4':
-                mdl.loadModel("name.obj");
-                mdl.setPosition(0, 0, 0);
-                mdl.setScale(1, 1, 1);
-                curFileInfo = ".obj";
-                break;
+            changeState = true;
+            lastState = NEUTRAL;
         }
+    }
+    
+    if (smallSmileValue.value() > 0.5)
+    {
+        currentState = SMALLSMILE;
+        
+        if(lastState != SMALLSMILE)
+        {
+            changeState = true;
+            lastState = SMALLSMILE;
+        }
+    }
+    
+    if (bigSmileValue.value() > 0.5)
+    {
+        currentState = BIGSMILE;
+        
+        if(lastState != BIGSMILE)
+        {
+            changeState = true;
+            lastState = BIGSMILE;
+        }
+    }
+    
+    if (oValue.value() > 0.5)
+    {
+        currentState = OMOUTH;
+        
+        if(lastState != OMOUTH)
+        {
+            changeState = true;
+            lastState = OMOUTH;
+        }
+    }
+    
+    
+    cout << "current state is : " << currentState << endl;
 }
 
 
+void ofApp::switchModel(int currentState)
+{
+    
+    switch(currentState)
+    {
+        case null:
+            break;
+            
+        case NEUTRAL:
+            mdl = mdl1;
+            break;
+            
+        case SMALLSMILE:
+            mdl = mdl2;
+            break;
+            
+        case BIGSMILE:
+            mdl = mdl3;
+            break;
+            
+        case OMOUTH:
+            mdl = mdl4;
+            break;
+    }
+}
 
 
 // Function that creates a sample for the classifier containing the mouth and eyes

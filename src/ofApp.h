@@ -22,7 +22,9 @@ public:
     void setup();
     void update();
     void draw();
-    void switchModel(int val);
+    void switchState();
+    void switchModel(int currentState);
+    
     void addModelToFace();
     
     
@@ -39,19 +41,39 @@ public:
     vector<pfunct_type> learned_functions;
     
     ofxAssimpModelLoader mdl;
+    ofxAssimpModelLoader mdl1;
+    ofxAssimpModelLoader mdl2;
+    ofxAssimpModelLoader mdl3;
+    ofxAssimpModelLoader mdl4;
+    
     ofLight    light;
     
     // stores the info on the current file.
     string curFileInfo;
     
     ofEasyCam cam;
-    float cameraOrbit;
-    
     
     //GUI setup
     ofxPanel gui;
     ofxFloatSlider lx, ly, lz;
-    ofxFloatSlider lrx, lry, lrz;
     ofxFloatSlider rx, ry, rz;
     ofxFloatSlider px, py, pz;
+    
+    bool changeState = false;
+    
+    
+    enum State{
+        null,
+        NEUTRAL,
+        SMALLSMILE,
+        BIGSMILE,
+        OMOUTH
+    };
+    
+    int m_currState;
+    
+    State lastState = null;
+    
+    State currentState = NEUTRAL;
+    
 };
