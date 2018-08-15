@@ -161,6 +161,8 @@ sample_type ofApp::makeSample(){
 
 void ofApp::switchModel(int val)
 {
+    // Maybe also use 2 expression at once??
+    
     //Switch drawing utensil model based on face expression
 //    switch(val)
 //    {
