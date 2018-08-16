@@ -19,6 +19,7 @@ void ofApp::setup(){
 
     // Setup grabber
     grabber.setup(1280,720);
+    
 
     // Setup tracker
     tracker.setup();
@@ -63,8 +64,15 @@ void ofApp::setup(){
     mdl4.loadModel("VG18_7.obj");
     mdl4.setPosition(0, 0, 0);
     mdl4.setScale(1, 1, 1);
+    
+    mdl5.loadModel("grass.obj", 20);
+    mdl5.setPosition(0, 0, 0);
+    mdl5.setRotation(0, 180, 1, 0, 0);
+    mdl5.setScale(.3, .3, .3);
+    
     curFileInfo = ".obj";
     
+        
     light.setPosition(lx, ly, lz);
     cam.setDistance(500);
 }
@@ -86,12 +94,24 @@ void ofApp::update(){
         }
     }
     
+    for (int x = 0; x < grabber.getWidth(); x++)
+    {
+        for (int y = 0; y < grabber.getHeight(); y ++)
+        {
+            grabber.getPixels().setColor(x, y, grabber.getPixels().getColor(x, y));
+        }
+    }
+    texture.loadData(grabber.getPixels());
+    
     switchState();
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    grabber.draw(0, 0);
+    
+    texture.draw(0,0);
+    
+//    grabber.draw(0, 0);
 //    tracker.drawDebug();
     
 #ifndef __OPTIMIZE__

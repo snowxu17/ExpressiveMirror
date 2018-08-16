@@ -31,7 +31,8 @@ public:
     sample_type makeSample();
     
     ofxFaceTracker2 tracker;
-    ofVideoGrabber grabber;
+    ofVideoGrabber grabber;    
+    ofTexture texture;
     
     ofxBiquadFilter1f neutralValue;
     ofxBiquadFilter1f smallSmileValue;
@@ -45,6 +46,7 @@ public:
     ofxAssimpModelLoader mdl2;
     ofxAssimpModelLoader mdl3;
     ofxAssimpModelLoader mdl4;
+    ofxAssimpModelLoader mdl5;
     
     ofLight    light;
     
