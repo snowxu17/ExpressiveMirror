@@ -31,13 +31,13 @@ void ofApp::setup(){
     gui.add(ly.setup("light y", 1000, 0, 5000));
     gui.add(lz.setup("light z", 0, 0, 5000));
     
-    gui.add(rx.setup("model rotate x", 360, 0, 360));
+    gui.add(rx.setup("model rotate x", 0, 0, 360));
     gui.add(ry.setup("model rotate y", 0, 0, 360));
-    gui.add(rz.setup("model rotate z", 360, 0, 360));
+    gui.add(rz.setup("model rotate z", 0, 0, 360));
     
-    gui.add(px.setup("model trans x", 0, 0, ofGetWidth()));
-    gui.add(py.setup("model trans y", 100, -ofGetHeight(), ofGetHeight()));
-    gui.add(pz.setup("model trabs z", 70, -1000, 1000));
+    gui.add(px.setup("model trans x", 0, -ofGetWidth(), ofGetWidth()));
+    gui.add(py.setup("model trans y", 500, -ofGetHeight(), ofGetHeight()));
+    gui.add(pz.setup("model trabs z", 350, -1000, 1000));
     
     
     // Setup 3D models
@@ -75,6 +75,9 @@ void ofApp::setup(){
         
     light.setPosition(lx, ly, lz);
     cam.setDistance(500);
+    
+    // Set up Kalman
+    kalman.init(1/10000., 1/10.);
 }
 
 //--------------------------------------------------------------
@@ -104,6 +107,14 @@ void ofApp::update(){
     texture.loadData(grabber.getPixels());
     
     switchState();
+    
+//    // Kalman
+//    for(auto face : tracker.getInstances())
+//    {
+//        kalman.update(face.getBoundingBox().getPosition());
+//        glm::vec3 s_position = kalman.getEstimation();
+//        //        cout<< face.getBoundingBox().getPosition() << endl;
+//    }
 }
 
 //--------------------------------------------------------------
@@ -201,9 +212,29 @@ void ofApp::addModelToFace()
     
     for(auto face : tracker.getInstances())
     {
+        glm::vec3 pBoundingBox = face.getBoundingBox().getPosition();
+        
+        kalman.update(pBoundingBox);
+        glm::vec3 s_position = kalman.getEstimation();
+        //ofDrawRectangle(s_position, 50, 50);
+        //cout << s_position << endl;
+        
+        float xSmoothCorrection = 0.80;
+        float ySmoothCorrection = 0.80;
+        float zSmoothCorrection = 0.80;
+        
+//        float s_x = xSmoothCorrection * s_x + ( 1 - xSmoothCorrection) * px;
+//        float s_y = ySmoothCorrection * s_y + ( 1 - ySmoothCorrection) * py;
+//        float s_z = zSmoothCorrection * s_z + ( 1 - zSmoothCorrection) * pz;
+        
+        float s_x = xSmoothCorrection * s_x + ( 1 - xSmoothCorrection) * pBoundingBox.x;
+        float s_y = ySmoothCorrection * s_y + ( 1 - ySmoothCorrection) * pBoundingBox.y;
+        float s_z = zSmoothCorrection * s_z + ( 1 - zSmoothCorrection) * pBoundingBox.z;
+        
         // Apply the pose matrix
         ofPushView();
         face.loadPoseMatrix();
+        
         
         // Now position 0,0,0 is at the forehead
 //        ofSetColor(255,0,0,50);
@@ -222,7 +253,10 @@ void ofApp::addModelToFace()
 //        ofPopMatrix();
         
         //// py = 100 is about hairline, pz = 70 looks actually on head
-        mdl.setPosition(px, py, pz);
+//        mdl.setPosition(px, py, pz);
+        mdl.setPosition(s_x, s_y, s_z);
+//        mdl.setPosition(s_position.x + 100, s_position.y - 50, s_position.z - 50); // need image size of the tracked face
+        //mdl.setPosition(s_position.x, s_position.y, s_position.z);
         mdl.setRotation(0, 180, rx, ry, rz);
         mdl.drawFaces();
         

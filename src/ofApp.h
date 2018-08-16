@@ -5,6 +5,7 @@
 #include "ofxBiquadFilter.h"
 #include "ofxAssimpModelLoader.h"
 #include "ofxGui.h"
+#include "ofxCv.h"
 
 
 typedef dlib::matrix<double,40,1> sample_type;
@@ -40,6 +41,9 @@ public:
     ofxBiquadFilter1f oValue;
     
     vector<pfunct_type> learned_functions;
+    
+    ofxCv::KalmanPosition kalman;
+    ofMesh predicted, line, estimated;
     
     ofxAssimpModelLoader mdl;
     ofxAssimpModelLoader mdl1;
