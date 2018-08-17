@@ -24,7 +24,7 @@ public:
     void update();
     void draw();
     void switchState();
-    void switchModel(int currentState);    
+    void switchModel(int currentState);
     void addModelToFace();
     
     
@@ -43,6 +43,7 @@ public:
     vector<pfunct_type> learned_functions;
     
     ofxCv::KalmanPosition kalman;
+    
     ofMesh predicted, line, estimated;
     
     ofxAssimpModelLoader mdl;
@@ -85,5 +86,8 @@ public:
     // Grabber setup
     int grabber_w = 1280;
     int grabber_h = 720;
+    
+    // Font
+    ofTrueTypeFont font;
     
 };
