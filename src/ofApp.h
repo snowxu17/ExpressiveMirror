@@ -6,6 +6,7 @@
 #include "ofxAssimpModelLoader.h"
 #include "ofxGui.h"
 #include "ofxCv.h"
+#include "Particle.h"
 
 
 typedef dlib::matrix<double,40,1> sample_type;
@@ -23,9 +24,16 @@ public:
     void setup();
     void update();
     void draw();
+    
     void switchState();
     void switchModel(int currentState);
     void addModelToFace();
+    
+    void setupStrings();
+    void updateStrings();
+    
+    void setupParticles();
+    void updateParticles();
     
     
     sample_type makeSample();
@@ -44,8 +52,8 @@ public:
     
     ofxCv::KalmanPosition kalman;
     
-    ofMesh predicted, line, estimated;
     
+    // 3D model setup
     ofxAssimpModelLoader mdl;
     ofxAssimpModelLoader mdl1;
     ofxAssimpModelLoader mdl2;
@@ -54,6 +62,16 @@ public:
     ofxAssimpModelLoader mdl5;
     ofxAssimpModelLoader mdl6;
     
+    std::vector<ofxAssimpModelLoader> n_mdls;
+    std::vector<ofxAssimpModelLoader> ss_mdls;
+    std::vector<ofxAssimpModelLoader> bs_mdls;
+    std::vector<ofxAssimpModelLoader> o_mdls;
+    
+    std::vector<string> n_strings;
+    std::vector<string> ss_strings;
+    std::vector<string> bs_strings;
+    std::vector<string> o_strings;
+    
     ofLight    light;
     
     // stores the info on the current file.
@@ -61,12 +79,18 @@ public:
     
     ofEasyCam cam;
     
+    // Particle setup
+    std::vector<Particle> particles;
+    glm::vec3 boundingSize;
+    
+    
     //GUI setup
     ofxPanel gui;
     ofxFloatSlider lx, ly, lz;
     ofxFloatSlider rx, ry, rz;
     ofxFloatSlider px, py, pz;
     ofxFloatSlider size;
+    
     
     // State setup
     bool changeState = false;
@@ -89,5 +113,6 @@ public:
     
     // Font
     ofTrueTypeFont font;
+
     
 };

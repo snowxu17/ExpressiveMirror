@@ -25,7 +25,7 @@ void ofApp::setup(){
     // Setup GUI
     gui.setup();
     gui.add(lx.setup("light x", 1200, 0, 5000));
-    gui.add(ly.setup("light y", 1800, 0, 5000));
+    gui.add(ly.setup("light y", 200, 0, 5000));
     gui.add(lz.setup("light z", 1000, 0, 5000));
     
     gui.add(rx.setup("model rotate x", 0, 0, 360)); //360 when facepose is used
@@ -39,51 +39,70 @@ void ofApp::setup(){
     gui.add(size.setup("size", 0, 100, 1000));
     
     // Setup 3D models
-    ofBackground(255);
+    ofBackground(50);
     ofSetVerticalSync(true);
     
-//    mdl.setRotation(0, 180, 1, 0, 0);
-//    mdl.setScale(0.9, 0.9, 0.9);
-//    mdl.setPosition(ofGetWidth()/2, ofGetHeight()/2, 0);
-    
-    mdl1.loadModel("VG18_3.obj", 20);
-    mdl1.setPosition(0, 0, 0);
-    mdl1.setScale(1, 1, 1);
+    mdl1.loadModel("Bird_LP.dae", 20);
+    mdl1.setPosition(0, -200, 0);
+    mdl1.setScale(.6, .6, .6);
+    mdl1.setRotation(0, 70, 1, 1, 0);
+    n_mdls.push_back(mdl1);
 
-    mdl2.loadModel("Shoes.dae", 20);
+    mdl2.loadModel("Shoe_LP.dae", 20);
     mdl2.setPosition(0, 0, 0);
     mdl2.setScale(1, 1, 1);
+    mdl2.setRotation(0, 180, 0, 1, 0);
+    ss_mdls.push_back(mdl2);
     
-    mdl3.loadModel("VG18_9.obj", 20);
+    mdl3.loadModel("BowlingBall.dae", 20);
     mdl3.setPosition(0, 0, 0);
+    mdl3.setRotation(0, 50, 1, -1, 0);
     mdl3.setScale(1, 1, 1);
+    n_mdls.push_back(mdl3);
 
-    mdl4.loadModel("VG18_7.obj");
+    mdl4.loadModel("Coffee.dae");
     mdl4.setPosition(0, 0, 0);
-    mdl4.setScale(1, 1, 1);
+    mdl4.setScale(.5, .5, .5);
+    mdl4.setRotation(0, 30, 1, 1, 0);
+    ss_mdls.push_back(mdl4);
     
-    mdl5.loadModel("tooth.obj");
+    mdl5.loadModel("Tooth_w.dae");
     mdl5.setPosition(0, 0, 0);
-    mdl5.setRotation(0, 180, 1, 0, 0);
+    mdl5.setRotation(0, 180, 0, 0, 0);
+    mdl5.setScale(1, 1, 1);
+    o_mdls.push_back(mdl5);
     
     mdl6.loadModel("Teeth.dae", 20);
     mdl6.setPosition(0, 0, 0);
-    mdl6.setRotation(0, 180, 1, 0, 0);
+    mdl6.setRotation(0, 180, 0, 0, 0);
+    mdl6.setScale(.8, .8, .8);
+    bs_mdls.push_back(mdl6);
     
     curFileInfo = ".obj";
         
     light.setPosition(lx, ly, lz);
     cam.setDistance(500);
     
+    cout << "n_mdls count: " << n_mdls.size() << endl;
+    cout << "ss_mdls count: " << ss_mdls.size() << endl;
+    cout << "bs_mdls count: " << bs_mdls.size() << endl;
+    cout << "o_mdls count: " << o_mdls.size() << endl;
+    
+    
     // Load Font
-    font.load("My Imaginary Friend.ttf", 50);
+    font.load("BABYK___.TTF", 80);
     
     // Set up Kalman
     kalman.init(1/10000., 1/10.);
+    
+    // Particle setup
+    setupParticles();
+
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
+
     
     grabber.update();
     
@@ -98,6 +117,8 @@ void ofApp::update(){
             neutralValue.update(learned_functions[3](makeSample()));
         }
     }
+    
+    updateParticles();
     
     switchState();
 }
@@ -161,13 +182,16 @@ void ofApp::draw(){
     gui.draw();
     
     
-    // -----font draw--------------
-    ofSetColor(ofColor::red);
-    ofPushMatrix();
-    // Scale as time changes
-    //Change color as time changes
-    font.drawString("Meet your imaginary friend", ofGetWidth()/4, ofGetHeight() * 0.9);
-    ofPopMatrix();
+    // --------Particles draw-----------
+    ofEnableLighting();
+    light.enable();
+    for (Particle& p: particles)
+    {
+        p.draw();
+    }
+    light.disable();
+    ofDisableLighting();
+    
     
     // ------3D models draw---------
     ofEnableDepthTest();
@@ -187,6 +211,23 @@ void ofApp::draw(){
     ofDisableDepthTest();
     
     
+    // -----font draw--------------
+    ofSetColor(ofColor::orange);
+    ofPushMatrix();
+    
+    ofTranslate(ofGetWidth()/4, ofGetHeight() * 0.9);
+    
+    float time = ofGetElapsedTimef();
+    float scale = 0.5 + ofNoise(time/2)/4;
+    
+    float x = sin(time / 2) * 50;
+    float y = ofNoise(time / 2) * 50;
+    
+    ofTranslate(x, y);
+    ofScale(scale, scale);
+    
+    font.drawString("Meet your guardian fairy", 0, 0);
+    ofPopMatrix();
 }
 
 
@@ -208,10 +249,9 @@ void ofApp::addModelToFace()
 //        cout << "Box width: " << w_b << endl;
         
         // Matrix
-        ofMatrix4x4 matrix = face.getPoseMatrix();
-        glm::vec3 m_p = matrix.getTranslation();
-        glm::vec3 m_r = matrix.getRotate().asVec3();
-        
+//        ofMatrix4x4 matrix = face.getPoseMatrix();
+//        glm::vec3 m_p = matrix.getTranslation();
+//        glm::vec3 m_r = matrix.getRotate().asVec3();
 //        cout << "Current matrix: " << endl;
 //        cout << matrix << endl;
 //        cout << "Rotation: " << endl;
@@ -221,37 +261,39 @@ void ofApp::addModelToFace()
         
         
         // Smooth function
-        float xSmoothCorrection = 0.80;
-        float ySmoothCorrection = 0.80;
-        float zSmoothCorrection = 0.80;
-        
+//        float xSmoothCorrection = 0.80;
+//        float ySmoothCorrection = 0.80;
+//        float zSmoothCorrection = 0.80;
 //        float s_x = xSmoothCorrection * s_x + ( 1 - xSmoothCorrection) * pBoundingBox.x;
 //        float s_y = ySmoothCorrection * s_y + ( 1 - ySmoothCorrection) * pBoundingBox.y;
 //        float s_z = zSmoothCorrection * s_z + ( 1 - zSmoothCorrection) * pBoundingBox.z;
         
-        glm::vec3 s_r;
-        s_r.x= xSmoothCorrection * s_r.x + ( 1- xSmoothCorrection) * m_r.x;
-        s_r.y= ySmoothCorrection * s_r.y + ( 1- ySmoothCorrection) * m_r.y;
-        s_r.z= zSmoothCorrection * s_r.z + ( 1- zSmoothCorrection) * m_r.z;
-        
         ofPushView();
 //        face.loadPoseMatrix();
+        ofPushMatrix();
 
-       
-//        mdl.setPosition(px, py, pz);
-//        mdl.setPosition(s_x, s_y, s_z);
         
         // Draw with kalman-smoothed bounding box
         float scl = w_b/ 290;
-        float scl_y;
-//        mdl.setPosition(s_position.x, s_position.y + 150, ofMap(s_position.z, -3000, -7000, 0, 100, true));
-        mdl.setPosition(s_position.x + 120 * scl,
-                        s_position.y - 70 * scl,
-                        s_position.z - 100 * scl);
         
-        mdl.setScale(scl, scl, scl);
-//        mdl.setRotation(0, 180, s_r.x, s_r.y, s_r.z);
-        mdl.setRotation(0, 180, rx, ry, rz);
+        ofTranslate(s_position.x + 120 * scl,
+                    s_position.y - 70 * scl,
+                    s_position.z - 100 * scl);
+        
+        float time = ofGetElapsedTimef();
+        float speed = 2;
+        float x = sin(time * speed) * 100;
+        float y = ofNoise(time) * 150;
+        
+        float r_x = 0;
+        float r_y = sin(time*speed) * 200;
+        float r_z = 0;
+        
+        ofTranslate(x,y);
+        ofScale(scl, scl, scl);
+        
+//        mdl.setRotation(0, 180, 0, r_y, 0);
+        
         mdl.drawFaces();
         
         // Draw based on matrix position // broken
@@ -263,18 +305,47 @@ void ofApp::addModelToFace()
 //        ofDrawBox(m_p.x, m_p.y, m_p.z, size);
 //        ofPopMatrix();
         
+        ofPopMatrix();
+        
         ofPopView();
     }
     
     ofPopStyle();
 
     ofDrawBitmapStringHighlight("Tracker fps: " + ofToString(tracker.getThreadFps()), 10, ofGetHeight() - 40);
-    
+}
+
+
+void ofApp::switchModel(int currentState)
+{
+    switch(currentState)
+    {
+        case null:
+            break;
+            
+        case NEUTRAL:
+            mdl = n_mdls[ofRandom(n_mdls.size())];
+            break;
+            
+        case SMALLSMILE:
+            mdl = ss_mdls[ofRandom(ss_mdls.size())];
+            break;
+            
+        case BIGSMILE:
+            mdl = bs_mdls[ofRandom(bs_mdls.size())];
+            break;
+            
+        case OMOUTH:
+            mdl = o_mdls[ofRandom(o_mdls.size())];
+            break;
+    }
 }
 
 
 void ofApp::switchState()
 {
+    float timeCounter = 0;
+    
     if (changeState == true)
     {
         switchModel(currentState);
@@ -287,19 +358,29 @@ void ofApp::switchState()
         
         if(lastState != NEUTRAL)
         {
-            changeState = true;
-            lastState = NEUTRAL;
+            timeCounter += ofGetElapsedTimef();
+            if(timeCounter > 5.0f)
+            {
+                changeState = true;
+                lastState = NEUTRAL;
+                timeCounter = 0;
+            }
         }
     }
     
-    if (smallSmileValue.value() > 0.5)
+    if (smallSmileValue.value() > 0.4)
     {
         currentState = SMALLSMILE;
         
         if(lastState != SMALLSMILE)
         {
-            changeState = true;
-            lastState = SMALLSMILE;
+            timeCounter += ofGetElapsedTimef();
+            if(timeCounter > 5.0f)
+            {
+                changeState = true;
+                lastState = SMALLSMILE;
+                timeCounter = 0;
+            }
         }
     }
     
@@ -309,8 +390,13 @@ void ofApp::switchState()
         
         if(lastState != BIGSMILE)
         {
-            changeState = true;
-            lastState = BIGSMILE;
+            timeCounter += ofGetElapsedTimef();
+            if(timeCounter > 5.0f)
+            {
+                changeState = true;
+                lastState = BIGSMILE;
+                timeCounter = 0;
+            }
         }
     }
     
@@ -320,39 +406,124 @@ void ofApp::switchState()
         
         if(lastState != OMOUTH)
         {
-            changeState = true;
-            lastState = OMOUTH;
+            timeCounter += ofGetElapsedTimef();
+            if(timeCounter > 5.0f)
+            {
+                changeState = true;
+                lastState = OMOUTH;
+                timeCounter = 0;
+            }
         }
     }
     
+    if(neutralValue.value() < 0.5 && smallSmileValue.value() < 0.4 && bigSmileValue.value() < 0.5 && oValue.value() < 0.5)
+    {
+        currentState = NEUTRAL;
+    }
 //    cout << "current state is : " << currentState << endl;
 }
 
+void ofApp::setupStrings()
+{
+    n_strings.push_back("hi");
+    
+    ss_strings.push_back("hehe");
+    
+    bs_strings.push_back("haha");
+    
+    o_strings.push_back("oooo");
+}
 
-void ofApp::switchModel(int currentState)
+
+void ofApp::setupParticles()
 {
     
-    switch(currentState)
+    // The width, height and depth of our bounding cube.
+    boundingSize = { 3000, 2000, 500 };
+    
+    int numParticles = 100;
+    
+    for (int i = 0; i < numParticles; i++)
     {
-        case null:
-            break;
-            
-        case NEUTRAL:
-            mdl = mdl1;
-            break;
-            
-        case SMALLSMILE:
-            mdl = mdl2;
-            break;
-            
-        case BIGSMILE:
-            mdl = mdl6;
-            break;
-            
-        case OMOUTH:
-            mdl = mdl5;
-            break;
+        Particle p;
+        
+        // Set initial positions.
+        p.position.x = ofGetWidth()/2;
+        p.position.y = ofGetHeight()/2;
+        p.position.z = 0;
+        
+        // Set initial velocities.
+        p.velocity.x = ofRandom(-5, 5);
+        p.velocity.y = ofRandom(-5, 5);
+        p.velocity.z = ofRandom(-5, 5);
+        
+        // Set inital accelerations.
+        p.acceleration.x = 0;
+        p.acceleration.y = 0;
+        p.acceleration.z = 0;
+        
+        // Set angular velocity.
+        p.angularVelocity.x = ofRandom(-2, 2);
+        p.angularVelocity.y = ofRandom(-2, 2);
+        p.angularVelocity.z = ofRandom(-2, 2);
+        
+        // Set radius.
+        p.radius = ofRandom(10, 50);
+        
+        // Set color.
+        p.color = ofColor::fromHsb(ofRandom(255), 255, 255);
+        
+        // Add a copy to our vector.
+        particles.push_back(p);
     }
+    
+}
+
+
+void ofApp::updateParticles()
+{
+    for (Particle& p: particles)
+    {
+        p.update();
+
+        // Check to see if our position in inside our bounding cube.
+        // Check x
+        if (p.position.x + p.radius >  boundingSize.x / 2)
+        {
+            p.velocity.x *= -1;
+            p.position.x = boundingSize.x / 2 - p.radius;
+        }
+        else if (p.position.x - p.radius < -boundingSize.x / 2)
+        {
+            p.velocity.x *= -1;
+            p.position.x = - boundingSize.x / 2 + p.radius;
+        }
+        
+        // Check Y
+        if (p.position.y + p.radius >  boundingSize.y / 2)
+        {
+            p.velocity.y *= -1;
+            p.position.y = boundingSize.y / 2 - p.radius;
+        }
+        else if (p.position.y - p.radius < -boundingSize.y / 2)
+        {
+            p.velocity.y *= -1;
+            p.position.y = - boundingSize.y / 2 + p.radius;
+        }
+        
+        // Check z
+        if (p.position.z + p.radius >  boundingSize.z / 2)
+        {
+            p.velocity.z *= -1;
+            p.position.z = boundingSize.z / 2 - p.radius;
+        }
+        else if (p.position.z - p.radius < -boundingSize.z / 2)
+        {
+            p.velocity.z *= -1;
+            p.position.z = - boundingSize.z / 2 + p.radius;
+        }
+    }
+    
 }
 
 

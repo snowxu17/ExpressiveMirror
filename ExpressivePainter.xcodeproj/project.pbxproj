@@ -8782,6 +8782,43 @@
 				<key>sourceTree</key>
 				<string>SOURCE_ROOT</string>
 			</dict>
+			<key>7B0055EEB8AD49D04B3F5D4D</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.c.h</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>Particle.h</string>
+				<key>path</key>
+				<string>src/Particle.h</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
+			<key>C6792CBAAA54D5A713D25ADF</key>
+			<dict>
+				<key>fileRef</key>
+				<string>E9AA5FD1EDF04CD1F5FB1686</string>
+				<key>isa</key>
+				<string>PBXBuildFile</string>
+			</dict>
+			<key>E9AA5FD1EDF04CD1F5FB1686</key>
+			<dict>
+				<key>explicitFileType</key>
+				<string>sourcecode.cpp.cpp</string>
+				<key>fileEncoding</key>
+				<string>4</string>
+				<key>isa</key>
+				<string>PBXFileReference</string>
+				<key>name</key>
+				<string>Particle.cpp</string>
+				<key>path</key>
+				<string>src/Particle.cpp</string>
+				<key>sourceTree</key>
+				<string>SOURCE_ROOT</string>
+			</dict>
 			<key>6948EE371B920CB800B5AC1A</key>
 			<dict>
 				<key>children</key>
@@ -9640,6 +9677,7 @@ fi
 				<array>
 					<string>E4B69E200A3A1BDC003C02F2</string>
 					<string>E4B69E210A3A1BDC003C02F2</string>
+					<string>C6792CBAAA54D5A713D25ADF</string>
 					<string>483FA4F6D5FA6422C559B1F5</string>
 					<string>3B8120368B4FCCD80883BAF3</string>
 					<string>B8846EF8E504895A4A9EFEC0</string>
@@ -10025,6 +10063,8 @@ fi
 					<string>E4B69E1D0A3A1BDC003C02F2</string>
 					<string>E4B69E1E0A3A1BDC003C02F2</string>
 					<string>E4B69E1F0A3A1BDC003C02F2</string>
+					<string>E9AA5FD1EDF04CD1F5FB1686</string>
+					<string>7B0055EEB8AD49D04B3F5D4D</string>
 				</array>
 				<key>isa</key>
 				<string>PBXGroup</string>
