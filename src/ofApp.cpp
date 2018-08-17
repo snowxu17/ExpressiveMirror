@@ -1,5 +1,4 @@
 #include "ofApp.h"
-
 //--------------------------------------------------------------
 void ofApp::setup(){
     
@@ -18,12 +17,10 @@ void ofApp::setup(){
     oValue.setFc(0.04);
 
     // Setup grabber
-    grabber.setup(1280,720);
-    
+    grabber.setup(grabber_w,grabber_h);
 
     // Setup tracker
     tracker.setup();
-    
     
     // Setup GUI
     gui.setup();
@@ -39,10 +36,10 @@ void ofApp::setup(){
     gui.add(py.setup("model trans y", 500, -ofGetHeight(), ofGetHeight()));
     gui.add(pz.setup("model trabs z", 350, -1000, 1000));
     
+    gui.add(size.setup("size", 0, 100, 1000));
     
     // Setup 3D models
     ofBackground(255, 255, 255);
-    
     ofSetVerticalSync(true);
     
 //    mdl.setRotation(0, 180, 1, 0, 0);
@@ -65,13 +62,16 @@ void ofApp::setup(){
     mdl4.setPosition(0, 0, 0);
     mdl4.setScale(1, 1, 1);
     
-    mdl5.loadModel("grass.obj", 20);
+    mdl5.loadModel("tooth.obj", 20);
     mdl5.setPosition(0, 0, 0);
     mdl5.setRotation(0, 180, 1, 0, 0);
-    mdl5.setScale(.3, .3, .3);
+    
+    mdl6.loadModel("TeethOBJ.obj", 20);
+    mdl6.setPosition(0, 0, 0);
+    mdl6.setRotation(0, 180, 1, 0, 0);
+    
     
     curFileInfo = ".obj";
-    
         
     light.setPosition(lx, ly, lz);
     cam.setDistance(500);
@@ -97,32 +97,27 @@ void ofApp::update(){
         }
     }
     
-    for (int x = 0; x < grabber.getWidth(); x++)
-    {
-        for (int y = 0; y < grabber.getHeight(); y ++)
-        {
-            grabber.getPixels().setColor(x, y, grabber.getPixels().getColor(x, y));
-        }
-    }
-    texture.loadData(grabber.getPixels());
+//    for (int x = 0; x < grabber.getWidth(); x++)
+//    {
+//        for (int y = 0; y < grabber.getHeight(); y ++)
+//        {
+//            grabber.getPixels().setColor(x, y, grabber.getPixels().getColor(x, y));
+//        }
+//    }
+//
+//    grabber.getPixels().cropTo(pixel, 0, 0, grabber_w, grabber_h);
+//    texture.loadData(pixel);
     
     switchState();
-    
-//    // Kalman
-//    for(auto face : tracker.getInstances())
-//    {
-//        kalman.update(face.getBoundingBox().getPosition());
-//        glm::vec3 s_position = kalman.getEstimation();
-//        //        cout<< face.getBoundingBox().getPosition() << endl;
-//    }
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
     
-    texture.draw(0,0);
+//    texture.draw(0,0);
+//    grabber.getTexture().drawSubsection(grabber_w/3, 0, 720, 720, grabber_w/3, 0);
     
-//    grabber.draw(0, 0);
+    grabber.draw(0, 0);
 //    tracker.drawDebug();
     
 #ifndef __OPTIMIZE__
@@ -178,27 +173,18 @@ void ofApp::draw(){
     
     // ------3D models draw---------
     ofEnableDepthTest();
-//    cam.begin();
     
         ofEnableLighting();
         light.enable();
         light.setPosition(lx, ly, lz);
     
-        // draws all the other file types which are loaded into model.
-//        mdl.setPosition(px, py, pz);
-//        mdl.setRotation(0, 180, rx, ry, rz);
-//        mdl.drawFaces();
-    
         ofPushMatrix();
-    
         addModelToFace();
-
         ofPopMatrix();
     
         light.disable();
         ofDisableLighting();
     
-//    cam.end();
     ofDisableDepthTest();
     
 }
@@ -212,13 +198,32 @@ void ofApp::addModelToFace()
     
     for(auto face : tracker.getInstances())
     {
+        /// Boundinhg Box
         glm::vec3 pBoundingBox = face.getBoundingBox().getPosition();
+        float w_b = face.getBoundingBox().getWidth();
         
         kalman.update(pBoundingBox);
         glm::vec3 s_position = kalman.getEstimation();
-        //ofDrawRectangle(s_position, 50, 50);
-        //cout << s_position << endl;
+//        //ofDrawRectangle(s_position, 50, 50);
+//        //cout << s_position << endl;
+//        cout << "Box width: " << w_b << endl;
         
+        ///Maytrix
+        ofMatrix4x4 matrix = face.getPoseMatrix();
+        glm::vec3 m_p = matrix.getTranslation();
+        glm::vec3 m_r = matrix.getRotate().asVec3();
+//        cout << "Current matrix: " << endl;
+//        cout << matrix << endl;
+//        cout << "Rotation: " << endl;
+//        cout << m_r << endl;
+        cout << "Translation: " << endl;
+        cout << m_p << endl;
+        
+//        kalman.update(m_p);
+//        glm::vec3 s_position = kalman.getEstimation();
+        
+        
+                
         float xSmoothCorrection = 0.80;
         float ySmoothCorrection = 0.80;
         float zSmoothCorrection = 0.80;
@@ -226,15 +231,14 @@ void ofApp::addModelToFace()
 //        float s_x = xSmoothCorrection * s_x + ( 1 - xSmoothCorrection) * px;
 //        float s_y = ySmoothCorrection * s_y + ( 1 - ySmoothCorrection) * py;
 //        float s_z = zSmoothCorrection * s_z + ( 1 - zSmoothCorrection) * pz;
-        
+//
         float s_x = xSmoothCorrection * s_x + ( 1 - xSmoothCorrection) * pBoundingBox.x;
         float s_y = ySmoothCorrection * s_y + ( 1 - ySmoothCorrection) * pBoundingBox.y;
         float s_z = zSmoothCorrection * s_z + ( 1 - zSmoothCorrection) * pBoundingBox.z;
         
         // Apply the pose matrix
         ofPushView();
-        face.loadPoseMatrix();
-        
+//        face.loadPoseMatrix();
         
         // Now position 0,0,0 is at the forehead
 //        ofSetColor(255,0,0,50);
@@ -252,13 +256,29 @@ void ofApp::addModelToFace()
 //        ofDrawRectangle(0, 0, 200, 200);
 //        ofPopMatrix();
         
-        //// py = 100 is about hairline, pz = 70 looks actually on head
+        
 //        mdl.setPosition(px, py, pz);
-        mdl.setPosition(s_x, s_y, s_z);
+//        mdl.setPosition(s_x, s_y, s_z);
+        
+//        // Draw with kalman-bounding box
 //        mdl.setPosition(s_position.x + 100, s_position.y - 50, s_position.z - 50); // need image size of the tracked face
-        //mdl.setPosition(s_position.x, s_position.y, s_position.z);
+        
+        float scl = w_b/ 290;
+        float scl_y;
+//        mdl.setPosition(s_position.x, s_position.y + 150, ofMap(s_position.z, -3000, -7000, 0, 100, true));
+        mdl.setPosition(s_position.x + 120 * scl, s_position.y - 70 * scl, s_position.z - 100 * scl);
+        mdl.setScale(scl, scl, scl);
         mdl.setRotation(0, 180, rx, ry, rz);
         mdl.drawFaces();
+        
+        
+//        ofPushMatrix();
+//        ofTranslate(200, 300);
+//        ofSetColor(255, 0, 0);
+//        ofRectangle(m_p.x, m_p.y, 100, 100);
+//        ofRectangle(100, 100, 100, 100);
+//        ofDrawBox(m_p.x, m_p.y, m_p.z, size);
+//        ofPopMatrix();
         
         
         ofPopView();
@@ -323,8 +343,7 @@ void ofApp::switchState()
         }
     }
     
-    
-    cout << "current state is : " << currentState << endl;
+//    cout << "current state is : " << currentState << endl;
 }
 
 
@@ -349,7 +368,7 @@ void ofApp::switchModel(int currentState)
             break;
             
         case OMOUTH:
-            mdl = mdl4;
+            mdl = mdl5;
             break;
     }
 }

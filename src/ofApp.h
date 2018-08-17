@@ -24,8 +24,7 @@ public:
     void update();
     void draw();
     void switchState();
-    void switchModel(int currentState);
-    
+    void switchModel(int currentState);    
     void addModelToFace();
     
     
@@ -34,6 +33,7 @@ public:
     ofxFaceTracker2 tracker;
     ofVideoGrabber grabber;    
     ofTexture texture;
+    ofPixels pixel;
     
     ofxBiquadFilter1f neutralValue;
     ofxBiquadFilter1f smallSmileValue;
@@ -51,6 +51,7 @@ public:
     ofxAssimpModelLoader mdl3;
     ofxAssimpModelLoader mdl4;
     ofxAssimpModelLoader mdl5;
+    ofxAssimpModelLoader mdl6;
     
     ofLight    light;
     
@@ -64,9 +65,10 @@ public:
     ofxFloatSlider lx, ly, lz;
     ofxFloatSlider rx, ry, rz;
     ofxFloatSlider px, py, pz;
+    ofxFloatSlider size;
     
+    // State setup
     bool changeState = false;
-    
     
     enum State{
         null,
@@ -77,9 +79,11 @@ public:
     };
     
     int m_currState;
-    
     State lastState = null;
-    
     State currentState = NEUTRAL;
+    
+    // Grabber setup
+    int grabber_w = 1280;
+    int grabber_h = 720;
     
 };
