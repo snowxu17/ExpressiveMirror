@@ -28,15 +28,15 @@ void ofApp::setup(){
     gui.add(ly.setup("light y", 200, 0, 5000));
     gui.add(lz.setup("light z", 1000, 0, 5000));
     
-    gui.add(rx.setup("model rotate x", 0, 0, 360)); //360 when facepose is used
-    gui.add(ry.setup("model rotate y", 0, 0, 360));
-    gui.add(rz.setup("model rotate z", 0, 0, 360));
+//    gui.add(rx.setup("model rotate x", 0, 0, 360)); //360 when facepose is used
+//    gui.add(ry.setup("model rotate y", 0, 0, 360));
+//    gui.add(rz.setup("model rotate z", 0, 0, 360));
+//
+//    gui.add(px.setup("model trans x", 0, -ofGetWidth(), ofGetWidth()));
+//    gui.add(py.setup("model trans y", 500, -ofGetHeight(), ofGetHeight()));
+//    gui.add(pz.setup("model trabs z", 350, -1000, 1000));
     
-    gui.add(px.setup("model trans x", 0, -ofGetWidth(), ofGetWidth()));
-    gui.add(py.setup("model trans y", 500, -ofGetHeight(), ofGetHeight()));
-    gui.add(pz.setup("model trabs z", 350, -1000, 1000));
-    
-    gui.add(size.setup("size", 0, 100, 1000));
+//    gui.add(size.setup("size", 0, 100, 1000));
     
     // Setup 3D models
     ofBackground(50);
@@ -63,7 +63,7 @@ void ofApp::setup(){
     mdl4.loadModel("Coffee.dae");
     mdl4.setPosition(0, 0, 0);
     mdl4.setScale(.5, .5, .5);
-    mdl4.setRotation(0, 30, 1, 1, 0);
+    mdl4.setRotation(0, 30, 1, 0, 0);
     ss_mdls.push_back(mdl4);
     
     mdl5.loadModel("Tooth_w.dae");
@@ -72,14 +72,29 @@ void ofApp::setup(){
     mdl5.setScale(1, 1, 1);
     o_mdls.push_back(mdl5);
     
-    mdl6.loadModel("Teeth.dae", 20);
+    mdl6.loadModel("Teeth.dae");
     mdl6.setPosition(0, 0, 0);
     mdl6.setRotation(0, 180, 0, 0, 0);
     mdl6.setScale(.8, .8, .8);
     bs_mdls.push_back(mdl6);
     
-    curFileInfo = ".obj";
-        
+    mdl7.loadModel("Clam.dae");
+    mdl7.setPosition(0, 0, 0);
+    mdl7.setRotation(0, 60, 1, 0, 0);
+    mdl7.setScale(.8, .8, .8);
+    bs_mdls.push_back(mdl7);
+    
+    mdl8.loadModel("UFO.dae");
+    mdl8.setPosition(0, 0, 0);
+    mdl8.setRotation(0, 180, 0, 1, 0);
+    mdl8.setRotation(0, 20, 1, 0, 0);
+    mdl8.setScale(.8, .8, .8);
+    o_mdls.push_back(mdl8);
+    
+    
+    
+//    curFileInfo = ".dae";
+    
     light.setPosition(lx, ly, lz);
     cam.setDistance(500);
     
@@ -88,6 +103,8 @@ void ofApp::setup(){
     cout << "bs_mdls count: " << bs_mdls.size() << endl;
     cout << "o_mdls count: " << o_mdls.size() << endl;
     
+    // Load image
+    img.load("grid.jpg");
     
     // Load Font
     font.load("BABYK___.TTF", 80);
@@ -102,7 +119,6 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
-
     
     grabber.update();
     
@@ -125,6 +141,10 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+    
+    // Draw background
+    ofSetColor(255);
+    img.draw(0, 0, ofGetWidth(), ofGetHeight());
     
 //    grabber.draw(0, 0);
 //    texture.draw(0,0);
@@ -212,10 +232,11 @@ void ofApp::draw(){
     
     
     // -----font draw--------------
-    ofSetColor(ofColor::orange);
+    ofPushStyle();
+    ofSetColor(ofColor::black);
     ofPushMatrix();
     
-    ofTranslate(ofGetWidth()/4, ofGetHeight() * 0.9);
+    ofTranslate(ofGetWidth()/5, ofGetHeight() * 0.9);
     
     float time = ofGetElapsedTimef();
     float scale = 0.5 + ofNoise(time/2)/4;
@@ -226,8 +247,13 @@ void ofApp::draw(){
     ofTranslate(x, y);
     ofScale(scale, scale);
     
-    font.drawString("Meet your guardian fairy", 0, 0);
+    font.drawString("Meet your imaginary friend", 10, 10);
+    
+    ofSetColor(ofColor::red);
+    font.drawString("Meet your imaginary friend", 0, 0);
+    
     ofPopMatrix();
+    ofPopStyle();
 }
 
 
@@ -312,7 +338,7 @@ void ofApp::addModelToFace()
     
     ofPopStyle();
 
-    ofDrawBitmapStringHighlight("Tracker fps: " + ofToString(tracker.getThreadFps()), 10, ofGetHeight() - 40);
+//    ofDrawBitmapStringHighlight("Tracker fps: " + ofToString(tracker.getThreadFps()), 10, ofGetHeight() - 40);
 }
 
 
@@ -439,9 +465,9 @@ void ofApp::setupParticles()
 {
     
     // The width, height and depth of our bounding cube.
-    boundingSize = { 3000, 2000, 500 };
+    boundingSize = { 3000, 2000, 400 };
     
-    int numParticles = 100;
+    int numParticles = 150;
     
     for (int i = 0; i < numParticles; i++)
     {

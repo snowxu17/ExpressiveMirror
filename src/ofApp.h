@@ -42,6 +42,7 @@ public:
     ofVideoGrabber grabber;    
     ofTexture texture;
     ofPixels pixel;
+    ofImage img;
     
     ofxBiquadFilter1f neutralValue;
     ofxBiquadFilter1f smallSmileValue;
@@ -61,6 +62,10 @@ public:
     ofxAssimpModelLoader mdl4;
     ofxAssimpModelLoader mdl5;
     ofxAssimpModelLoader mdl6;
+    ofxAssimpModelLoader mdl7;
+    ofxAssimpModelLoader mdl8;
+    ofxAssimpModelLoader mdl9;
+    ofxAssimpModelLoader mdl10;
     
     std::vector<ofxAssimpModelLoader> n_mdls;
     std::vector<ofxAssimpModelLoader> ss_mdls;
