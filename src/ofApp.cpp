@@ -3,6 +3,8 @@
 void ofApp::setup(){
     
     learned_functions = vector<pfunct_type>(4);
+    
+    
 
     // Load SVM data model
     dlib::deserialize(ofToDataPath("data_ecstatic_smile.func")) >> learned_functions[0];
@@ -44,7 +46,7 @@ void ofApp::setup(){
     
     mdl1.loadModel("Bird_LP.dae", 20);
     mdl1.setPosition(0, -200, 0);
-    mdl1.setScale(.6, .6, .6);
+    mdl1.setScale(1, 1, 1);
     mdl1.setRotation(0, 70, 1, 1, 0);
     n_mdls.push_back(mdl1);
 
@@ -91,6 +93,19 @@ void ofApp::setup(){
     mdl8.setScale(.8, .8, .8);
     o_mdls.push_back(mdl8);
     
+    mdl9.loadModel("Jellyfish.dae");
+    mdl9.setPosition(0, 0, 0);
+    mdl9.setRotation(0, 180, 0, 1, 0);
+    mdl9.setRotation(0, 20, 1, 0, 0);
+    mdl9.setScale(.8, .8, .8);
+    n_mdls.push_back(mdl9);
+    
+    mdl10.loadModel("Hammer.dae");
+    mdl10.setPosition(0, 0, 0);
+    mdl10.setRotation(0, 100, 0, 1, 0);
+    mdl10.setRotation(0, 20, 1, 0, 0);
+    mdl10.setScale(1, 1, 1);
+    o_mdls.push_back(mdl10);
     
     
 //    curFileInfo = ".dae";
@@ -105,6 +120,7 @@ void ofApp::setup(){
     
     // Load image
     img.load("grid.jpg");
+    bang.load("Boom.png");
     
     // Load Font
     font.load("BABYK___.TTF", 80);
@@ -233,7 +249,6 @@ void ofApp::draw(){
     
     // -----font draw--------------
     ofPushStyle();
-    ofSetColor(ofColor::black);
     ofPushMatrix();
     
     ofTranslate(ofGetWidth()/5, ofGetHeight() * 0.9);
@@ -247,10 +262,19 @@ void ofApp::draw(){
     ofTranslate(x, y);
     ofScale(scale, scale);
     
+    ofSetColor(255, 200);
+    bang.setImageType(OF_IMAGE_COLOR_ALPHA);
+    ofPushMatrix();
+    ofTranslate(sin(time / 2) * 200, ofNoise(time / 2) * 100);
+    bang.draw( -100, -500, 1700, 800);
+    ofPopMatrix();
+
+    ofSetColor(ofColor::black);
     font.drawString("Meet your imaginary friend", 10, 10);
     
     ofSetColor(ofColor::red);
     font.drawString("Meet your imaginary friend", 0, 0);
+    
     
     ofPopMatrix();
     ofPopStyle();
@@ -261,12 +285,16 @@ void ofApp::addModelToFace()
 {
     ofPushStyle();
     
+    ofPushMatrix();
+//    ofScale(-1, 1, 1);
+    
     tracker.drawDebugPose();
     
     for(auto face : tracker.getInstances())
     {
         // Boundinhg Box
         glm::vec3 pBoundingBox = face.getBoundingBox().getPosition();
+        
         float w_b = face.getBoundingBox().getWidth();
         
         kalman.update(pBoundingBox);
@@ -294,15 +322,32 @@ void ofApp::addModelToFace()
 //        float s_y = ySmoothCorrection * s_y + ( 1 - ySmoothCorrection) * pBoundingBox.y;
 //        float s_z = zSmoothCorrection * s_z + ( 1 - zSmoothCorrection) * pBoundingBox.z;
         
+        float s_w_b = 0.70 * s_w_b + 0.3 * w_b;
+        //cout<<"smoothed boundingbox width: " << s_w_b <<endl;
+        
         ofPushView();
 //        face.loadPoseMatrix();
         ofPushMatrix();
-
         
         // Draw with kalman-smoothed bounding box
-        float scl = w_b/ 290;
+        float scl = s_w_b/ 69;
+        cout << "scl: " << scl << endl;
         
-        ofTranslate(s_position.x + 120 * scl,
+        
+        if (p_scl != scl)
+        {
+            
+            float increment = 0.1;
+
+            
+            n_scl = ofLerp(p_scl, scl, increment);
+            cout << "n_ scl: " << n_scl << endl;
+            
+            p_scl = scl;
+        }
+
+        
+        ofTranslate( grabber_w - (s_position.x + 120 * scl),
                     s_position.y - 70 * scl,
                     s_position.z - 100 * scl);
         
@@ -332,10 +377,10 @@ void ofApp::addModelToFace()
 //        ofPopMatrix();
         
         ofPopMatrix();
-        
         ofPopView();
     }
     
+    ofPopMatrix();
     ofPopStyle();
 
 //    ofDrawBitmapStringHighlight("Tracker fps: " + ofToString(tracker.getThreadFps()), 10, ofGetHeight() - 40);
@@ -370,7 +415,7 @@ void ofApp::switchModel(int currentState)
 
 void ofApp::switchState()
 {
-    float timeCounter = 0;
+    
     
     if (changeState == true)
     {
@@ -378,67 +423,47 @@ void ofApp::switchState()
         changeState = false;
     }
     
-    if (neutralValue.value() > 0.5)
+    if (neutralValue.value() > 0.5 && smallSmileValue.value() < 0.4 && bigSmileValue.value() < 0.5 && oValue.value() < 0.5)
     {
         currentState = NEUTRAL;
         
         if(lastState != NEUTRAL)
         {
-            timeCounter += ofGetElapsedTimef();
-            if(timeCounter > 5.0f)
-            {
-                changeState = true;
-                lastState = NEUTRAL;
-                timeCounter = 0;
-            }
+            changeState = true;
+            lastState = NEUTRAL;
         }
     }
     
-    if (smallSmileValue.value() > 0.4)
+    if (neutralValue.value() < 0.5 && smallSmileValue.value() > 0.4 && bigSmileValue.value() < 0.5 && oValue.value() < 0.5)
     {
         currentState = SMALLSMILE;
         
         if(lastState != SMALLSMILE)
         {
-            timeCounter += ofGetElapsedTimef();
-            if(timeCounter > 5.0f)
-            {
-                changeState = true;
-                lastState = SMALLSMILE;
-                timeCounter = 0;
-            }
+            changeState = true;
+            lastState = SMALLSMILE;
         }
     }
     
-    if (bigSmileValue.value() > 0.5)
+    if (neutralValue.value() < 0.5 && smallSmileValue.value() < 0.4 && bigSmileValue.value() > 0.5 && oValue.value() < 0.5)
     {
         currentState = BIGSMILE;
         
         if(lastState != BIGSMILE)
         {
-            timeCounter += ofGetElapsedTimef();
-            if(timeCounter > 5.0f)
-            {
-                changeState = true;
-                lastState = BIGSMILE;
-                timeCounter = 0;
-            }
+            changeState = true;
+            lastState = BIGSMILE;
         }
     }
     
-    if (oValue.value() > 0.5)
+    if (neutralValue.value() < 0.5 && smallSmileValue.value() < 0.4 && bigSmileValue.value() < 0.5 && oValue.value() > 0.5)
     {
         currentState = OMOUTH;
         
         if(lastState != OMOUTH)
         {
-            timeCounter += ofGetElapsedTimef();
-            if(timeCounter > 5.0f)
-            {
-                changeState = true;
-                lastState = OMOUTH;
-                timeCounter = 0;
-            }
+            changeState = true;
+            lastState = OMOUTH;
         }
     }
     

@@ -43,6 +43,7 @@ public:
     ofTexture texture;
     ofPixels pixel;
     ofImage img;
+    ofImage bang;
     
     ofxBiquadFilter1f neutralValue;
     ofxBiquadFilter1f smallSmileValue;
@@ -52,6 +53,7 @@ public:
     vector<pfunct_type> learned_functions;
     
     ofxCv::KalmanPosition kalman;
+    
     
     
     // 3D model setup
@@ -66,6 +68,8 @@ public:
     ofxAssimpModelLoader mdl8;
     ofxAssimpModelLoader mdl9;
     ofxAssimpModelLoader mdl10;
+    ofxAssimpModelLoader mdl11;
+    ofxAssimpModelLoader mdl12;
     
     std::vector<ofxAssimpModelLoader> n_mdls;
     std::vector<ofxAssimpModelLoader> ss_mdls;
@@ -118,6 +122,11 @@ public:
     
     // Font
     ofTrueTypeFont font;
+    
+    
+    float p_scl = 0;
+    float n_scl;
+    
 
     
 };
