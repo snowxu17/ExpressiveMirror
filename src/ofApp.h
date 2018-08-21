@@ -117,16 +117,19 @@ public:
     State currentState = NEUTRAL;
     
     // Grabber setup
-    int grabber_w = 1280;
-    int grabber_h = 720;
+    int grabber_w = 1920;
+    int grabber_h = 1080;
+    
+    int w = ofGetWidth();
+    int h = ofGetHeight();
     
     // Font
     ofTrueTypeFont font;
     
-    
     float p_scl = 0;
     float n_scl;
-    
 
+    float x_offset = grabber_w/5;
+    float y_offset;
     
 };

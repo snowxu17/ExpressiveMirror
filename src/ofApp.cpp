@@ -3,8 +3,6 @@
 void ofApp::setup(){
     
     learned_functions = vector<pfunct_type>(4);
-    
-    
 
     // Load SVM data model
     dlib::deserialize(ofToDataPath("data_ecstatic_smile.func")) >> learned_functions[0];
@@ -19,6 +17,8 @@ void ofApp::setup(){
     oValue.setFc(0.04);
 
     // Setup grabber
+//    grabber.listDevices();
+    grabber.setDeviceID(1);
     grabber.setup(grabber_w,grabber_h);
 
     // Setup tracker
@@ -45,7 +45,7 @@ void ofApp::setup(){
     ofSetVerticalSync(true);
     
     mdl1.loadModel("Bird_LP.dae", 20);
-    mdl1.setPosition(0, -200, 0);
+    mdl1.setPosition(0, 0, 0);
     mdl1.setScale(1, 1, 1);
     mdl1.setRotation(0, 70, 1, 1, 0);
     n_mdls.push_back(mdl1);
@@ -83,14 +83,14 @@ void ofApp::setup(){
     mdl7.loadModel("Clam.dae");
     mdl7.setPosition(0, 0, 0);
     mdl7.setRotation(0, 60, 1, 0, 0);
-    mdl7.setScale(.8, .8, .8);
+    mdl7.setScale(.4, .4, .4);
     bs_mdls.push_back(mdl7);
     
     mdl8.loadModel("UFO.dae");
     mdl8.setPosition(0, 0, 0);
     mdl8.setRotation(0, 180, 0, 1, 0);
     mdl8.setRotation(0, 20, 1, 0, 0);
-    mdl8.setScale(.8, .8, .8);
+    mdl8.setScale(.6, .6, .6);
     o_mdls.push_back(mdl8);
     
     mdl9.loadModel("Jellyfish.dae");
@@ -130,7 +130,6 @@ void ofApp::setup(){
     
     // Particle setup
     setupParticles();
-
 }
 
 //--------------------------------------------------------------
@@ -160,12 +159,20 @@ void ofApp::draw(){
     
     // Draw background
     ofSetColor(255);
-    img.draw(0, 0, ofGetWidth(), ofGetHeight());
+    ofPushMatrix();
+//    ofScale(img.getWidth()/w, (img.getHeight()/h)/3);
+    //img.draw(0, 0, 1080, 1920);
+    ofPopMatrix();
     
 //    grabber.draw(0, 0);
 //    texture.draw(0,0);
-//    grabber.getTexture().drawSubsection(grabber_w/3, 0, 720, 720, grabber_w/3, 0);
-//    tracker.drawDebug();
+    
+    ofPushMatrix();
+    ofScale(2, 2, 1);
+    grabber.getTexture().drawSubsection(0, 0, 720, 1080, x_offset, 0);
+    ofPopMatrix();
+    
+    tracker.drawDebug();
     
 #ifndef __OPTIMIZE__
     ofSetColor(ofColor::red);
@@ -215,18 +222,26 @@ void ofApp::draw(){
     
     
     // ---------GUI draw------------
-    gui.draw();
+//    gui.draw();
     
     
     // --------Particles draw-----------
+    ofPushMatrix();
+    
     ofEnableLighting();
+    ofScale(2, 2, 2);
+    
     light.enable();
+    
     for (Particle& p: particles)
     {
         p.draw();
     }
+    
     light.disable();
     ofDisableLighting();
+    
+    ofPopMatrix();
     
     
     // ------3D models draw---------
@@ -262,19 +277,18 @@ void ofApp::draw(){
     ofTranslate(x, y);
     ofScale(scale, scale);
     
-    ofSetColor(255, 200);
-    bang.setImageType(OF_IMAGE_COLOR_ALPHA);
-    ofPushMatrix();
-    ofTranslate(sin(time / 2) * 200, ofNoise(time / 2) * 100);
-    bang.draw( -100, -500, 1700, 800);
-    ofPopMatrix();
+//    ofSetColor(255, 200);
+//    bang.setImageType(OF_IMAGE_COLOR_ALPHA);
+//    ofPushMatrix();
+//    ofTranslate(sin(time / 2) * 200, ofNoise(time / 2) * 100);
+//    bang.draw( -100, -500, 1700, 800);
+//    ofPopMatrix();
 
     ofSetColor(ofColor::black);
     font.drawString("Meet your imaginary friend", 10, 10);
     
     ofSetColor(ofColor::red);
     font.drawString("Meet your imaginary friend", 0, 0);
-    
     
     ofPopMatrix();
     ofPopStyle();
@@ -284,9 +298,9 @@ void ofApp::draw(){
 void ofApp::addModelToFace()
 {
     ofPushStyle();
-    
     ofPushMatrix();
-//    ofScale(-1, 1, 1);
+    
+    ofTranslate(- x_offset, 0, 0);
     
     tracker.drawDebugPose();
     
@@ -294,7 +308,6 @@ void ofApp::addModelToFace()
     {
         // Boundinhg Box
         glm::vec3 pBoundingBox = face.getBoundingBox().getPosition();
-        
         float w_b = face.getBoundingBox().getWidth();
         
         kalman.update(pBoundingBox);
@@ -313,7 +326,6 @@ void ofApp::addModelToFace()
 //        cout << "Translation: " << endl;
 //        cout << m_p << endl;
         
-        
         // Smooth function
 //        float xSmoothCorrection = 0.80;
 //        float ySmoothCorrection = 0.80;
@@ -323,7 +335,7 @@ void ofApp::addModelToFace()
 //        float s_z = zSmoothCorrection * s_z + ( 1 - zSmoothCorrection) * pBoundingBox.z;
         
         float s_w_b = 0.70 * s_w_b + 0.3 * w_b;
-        //cout<<"smoothed boundingbox width: " << s_w_b <<endl;
+        cout<<"smoothed boundingbox width: " << s_w_b <<endl;
         
         ofPushView();
 //        face.loadPoseMatrix();
@@ -331,21 +343,17 @@ void ofApp::addModelToFace()
         
         // Draw with kalman-smoothed bounding box
         float scl = s_w_b/ 69;
-        cout << "scl: " << scl << endl;
+//        cout << "scl: " << scl << endl;
         
         
-        if (p_scl != scl)
-        {
-            
-            float increment = 0.1;
-
-            
-            n_scl = ofLerp(p_scl, scl, increment);
-            cout << "n_ scl: " << n_scl << endl;
-            
-            p_scl = scl;
-        }
-
+//        if (p_scl != scl)
+//        {
+//            float increment = 0.1;
+//            n_scl = ofLerp(p_scl, scl, increment);
+//            cout << "n_ scl: " << n_scl << endl;
+//
+//            p_scl = scl;
+//        }
         
         ofTranslate( grabber_w - (s_position.x + 120 * scl),
                     s_position.y - 70 * scl,
@@ -362,8 +370,6 @@ void ofApp::addModelToFace()
         
         ofTranslate(x,y);
         ofScale(scl, scl, scl);
-        
-//        mdl.setRotation(0, 180, 0, r_y, 0);
         
         mdl.drawFaces();
         
@@ -415,8 +421,6 @@ void ofApp::switchModel(int currentState)
 
 void ofApp::switchState()
 {
-    
-    
     if (changeState == true)
     {
         switchModel(currentState);
@@ -488,11 +492,10 @@ void ofApp::setupStrings()
 
 void ofApp::setupParticles()
 {
-    
     // The width, height and depth of our bounding cube.
-    boundingSize = { 3000, 2000, 400 };
+    boundingSize = { 1500, 2000, 400 };
     
-    int numParticles = 150;
+    int numParticles = 100;
     
     for (int i = 0; i < numParticles; i++)
     {
