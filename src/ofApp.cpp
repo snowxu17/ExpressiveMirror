@@ -306,6 +306,10 @@ void ofApp::addModelToFace()
     
     for(auto face : tracker.getInstances())
     {
+        cout << face.getLabel() << endl;
+        
+        
+        
         // Boundinhg Box
         glm::vec3 pBoundingBox = face.getBoundingBox().getPosition();
         float w_b = face.getBoundingBox().getWidth();
@@ -335,7 +339,7 @@ void ofApp::addModelToFace()
 //        float s_z = zSmoothCorrection * s_z + ( 1 - zSmoothCorrection) * pBoundingBox.z;
         
         float s_w_b = 0.70 * s_w_b + 0.3 * w_b;
-        cout<<"smoothed boundingbox width: " << s_w_b <<endl;
+//        cout<<"smoothed boundingbox width: " << s_w_b <<endl;
         
         ofPushView();
 //        face.loadPoseMatrix();
