@@ -73,6 +73,8 @@ public:
     ofxAssimpModelLoader mdl10;
     ofxAssimpModelLoader mdl11;
     ofxAssimpModelLoader mdl12;
+    ofxAssimpModelLoader mdl13;
+    ofxAssimpModelLoader mdl14;
     
     std::vector<ofxAssimpModelLoader> n_mdls;
     std::vector<ofxAssimpModelLoader> ss_mdls;
@@ -102,7 +104,7 @@ public:
     ofxPanel gui;
     ofxFloatSlider lx, ly, lz;
     ofxFloatSlider rx, ry, rz;
-//    ofxFloatSlider px, py, pz;
+    ofxFloatSlider px, py, pz;
     ofxFloatSlider size;
     
     

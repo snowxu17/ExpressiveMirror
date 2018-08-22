@@ -30,9 +30,9 @@ void ofApp::setup(){
     gui.add(ly.setup("light y", 200, 0, 5000));
     gui.add(lz.setup("light z", 1000, 0, 5000));
     
-//    gui.add(px.setup("model trans x", 0, -ofGetWidth(), ofGetWidth()));
-//    gui.add(py.setup("model trans y", 500, -ofGetHeight(), ofGetHeight()));
-//    gui.add(pz.setup("model trabs z", 350, -1000, 1000));
+    gui.add(px.setup("model trans x", 0, -ofGetWidth(), ofGetWidth()));
+    gui.add(py.setup("model trans y", 500, -ofGetHeight(), ofGetHeight()));
+    gui.add(pz.setup("model trabs z", 350, -1000, 1000));
 
     
     // Setup 3D models
@@ -108,7 +108,7 @@ void ofApp::draw(){
 //    grabber.getTexture().drawSubsection(0, 0, 720, 1080, x_offset, 0);
 //    ofPopMatrix();
     
-    tracker.drawDebug();
+//    tracker.drawDebug();
     
 #ifndef __OPTIMIZE__
     ofSetColor(ofColor::red);
@@ -222,7 +222,7 @@ void ofApp::draw(){
     ofPopStyle();
     
     
-    cout<< timeCounter << endl;
+//    cout<< timeCounter << endl;
 }
 
 
@@ -231,13 +231,13 @@ void ofApp::addModelToFace()
     ofPushStyle();
     ofPushMatrix();
     
-    ofTranslate(- x_offset, 0, 0);
+//    ofTranslate(- x_offset, 0, 0);
 //    ofScale(2, 2);
     
     tracker.drawDebugPose();
-    int numFaces = tracker.size();
-    cout << "numFaces: " << numFaces << endl;
-    cout << "isTracking : " << isTracking << endl;
+//    int numFaces = tracker.size();
+//    cout << "numFaces: " << numFaces << endl;
+//    cout << "isTracking : " << isTracking << endl;
 
 //        for(auto face : tracker.getInstances())
 //        {
@@ -293,7 +293,7 @@ void ofApp::addModelToFace()
 
             kalman.update(pBoundingBox);
             glm::vec3 s_position = kalman.getEstimation();
-            cout << "sposition: " << s_position << endl;
+//            cout << "sposition: " << s_position << endl;
 
             float s_w_b = 0.70 * s_w_b + 0.3 * w_b;
             //cout<<"smoothed boundingbox width: " << s_w_b <<endl;
@@ -304,13 +304,14 @@ void ofApp::addModelToFace()
             // Draw with kalman-smoothed bounding box
             float scl = s_w_b/ 69;
 
-            float px = grabber_w - (s_position.x + 120 * scl);
-            float py = s_position.y - 70 * scl;
-            float pz = s_position.z - 100 * scl;
-            ofTranslate(px, py, pz);
+//            float px = 500; //grabber_w - (s_position.x + 120 * scl);
+//            float py = 500; //s_position.y - 70 * scl;
+//            float pz = s_position.z - 100 * scl;
+            ofTranslate(690, 500, 100);
+//            ofTranslate(px,py,pz);
 
-            cout << "xpos: " << px << endl;
-            cout << "ypos: " << py << endl;
+            cout << "xpos: " << grabber_w - (s_position.x + 120 * scl) << endl;
+            cout << "ypos: " << s_position.y - 70 * scl << endl;
 
             float time = ofGetElapsedTimef();
             float speed = 2;
@@ -733,7 +734,23 @@ void ofApp::setUpModels()
     mdl12.setRotation(0, 100, 0, 1, 0);
 //    mdl12.setRotation(0, 20, 1, 0, 0);
     mdl12.setScale(1, 1, 1);
-    ss_mdls.push_back(mdl12);
+    n_mdls.push_back(mdl12);
+    
+    mdl13.loadModel("thmsfrndfc low.dae");
+    mdl13.setPosition(0, 1000, 0);
+    mdl13.setRotation(0, 270, 0, 1, 0);
+    //    mdl13.setRotation(0, 20, 1, 0, 0);
+    mdl13.setScale(1, 1, 1);
+    o_mdls.push_back(mdl13);
+    
+    mdl14.loadModel("Brain.dae");
+    mdl14.setPosition(0, 200, 0);
+    mdl14.setRotation(0, 100, 0, 1, 0);
+    //    mdl14.setRotation(0, 20, 1, 0, 0);
+    mdl14.setScale(1, 1, 1);
+    ss_mdls.push_back(mdl14);
+    
+    
     
     light.setPosition(lx, ly, lz);
     cam.setDistance(500);
