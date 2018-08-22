@@ -25,12 +25,14 @@ public:
     void update();
     void draw();
     
+    void setUpModels();
     void switchState();
     void switchModel(int currentState);
     void addModelToFace();
     
     void setupStrings();
-    void updateStrings();
+    void switchString(int currentState);
+    void drawStrings();
     
     void setupParticles();
     void updateParticles();
@@ -41,9 +43,10 @@ public:
     ofxFaceTracker2 tracker;
     ofVideoGrabber grabber;    
     ofTexture texture;
-    ofPixels pixel;
+//    ofPixels pixel;
+    
     ofImage img;
-    ofImage bang;
+    ofImage bubble;
     
     ofxBiquadFilter1f neutralValue;
     ofxBiquadFilter1f smallSmileValue;
@@ -54,7 +57,7 @@ public:
     
     ofxCv::KalmanPosition kalman;
     
-    
+    std::vector<ofxFaceTracker2Instance> instances;
     
     // 3D model setup
     ofxAssimpModelLoader mdl;
@@ -75,6 +78,8 @@ public:
     std::vector<ofxAssimpModelLoader> ss_mdls;
     std::vector<ofxAssimpModelLoader> bs_mdls;
     std::vector<ofxAssimpModelLoader> o_mdls;
+    
+    string str;
     
     std::vector<string> n_strings;
     std::vector<string> ss_strings;
@@ -97,7 +102,7 @@ public:
     ofxPanel gui;
     ofxFloatSlider lx, ly, lz;
     ofxFloatSlider rx, ry, rz;
-    ofxFloatSlider px, py, pz;
+//    ofxFloatSlider px, py, pz;
     ofxFloatSlider size;
     
     
@@ -116,6 +121,9 @@ public:
     State lastState = null;
     State currentState = NEUTRAL;
     
+    float threshold = 1000.;
+    float timeCounter = 0;
+    
     // Grabber setup
     int grabber_w = 1920;
     int grabber_h = 1080;
@@ -125,11 +133,12 @@ public:
     
     // Font
     ofTrueTypeFont font;
-    
-    float p_scl = 0;
-    float n_scl;
+    ofTrueTypeFont font2;
 
-    float x_offset = grabber_w/5;
+    float x_offset = grabber_w/4;
     float y_offset;
+
+    ofColor strColor;
     
+    bool isTracking = true;
 };
