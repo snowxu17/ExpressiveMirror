@@ -45,8 +45,15 @@ public:
     ofTexture texture;
 //    ofPixels pixel;
     
+    int imgSize = 90;
     ofImage img;
     ofImage bubble;
+    ofImage n;
+    ofImage ss;
+    ofImage bs;
+    ofImage o;
+    
+    std::vector<ofImage> emojis;
     
     ofxBiquadFilter1f neutralValue;
     ofxBiquadFilter1f smallSmileValue;
@@ -77,6 +84,10 @@ public:
     ofxAssimpModelLoader mdl14;
     ofxAssimpModelLoader mdl15;
     ofxAssimpModelLoader mdl16;
+    ofxAssimpModelLoader mdl17;
+    ofxAssimpModelLoader mdl18;
+    ofxAssimpModelLoader mdl19;
+    ofxAssimpModelLoader mdl20;
     
     
     std::vector<ofxAssimpModelLoader> n_mdls;
@@ -139,6 +150,7 @@ public:
     // Font
     ofTrueTypeFont font;
     ofTrueTypeFont font2;
+    ofTrueTypeFont font3;
 
     float x_offset = grabber_w/3;
     float y_offset;

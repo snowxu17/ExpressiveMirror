@@ -41,11 +41,23 @@ void ofApp::setup(){
     // Load image
     img.load("grid.jpg");
     bubble.load("Bubble.png");
-    bubble.setImageType(OF_IMAGE_COLOR_ALPHA);
+    bubble.setImageType(OF_IMAGE_COLOR_ALPHA);    
+    
+    bs.load("bs.png");
+    ss.load("ss.png");
+    o.load("o.png");
+    n.load("n.png");
+    
+    emojis.push_back(bs);
+    emojis.push_back(ss);
+    emojis.push_back(o);
+    emojis.push_back(n);
+    
     
     // Load Font
     font.load("BABYK___.TTF", 140);
     font2.load("Sketch 3D.otf", 100);
+    font3.load("Sketch 3D.otf", 25);
     
     // Set up Kalman
     kalman.init(1/10000., 1/10.);
@@ -117,46 +129,6 @@ void ofApp::draw(){
     ofSetColor(ofColor::white);
 #endif
     
-    ofPushMatrix();
-    ofTranslate(ofGetWidth() - 350, 100);
-    
-    for (int i = 0; i < 4; i++) {
-        ofSetColor(255);
-
-        string str;
-        float val;
-        switch (i) {
-            case 0:
-                str = "BIG SMILE";
-                val = bigSmileValue.value();
-                break;
-            case 1:
-                str = "SMALL SMILE";
-                val = smallSmileValue.value();
-                break;
-            case 2:
-                str = "OOO MOUTH";
-                val = oValue.value();
-                break;
-            case 3:
-                str = "NEUTRAL MOUTH";
-                val = neutralValue.value();
-                break;
-        }
-
-        ofDrawBitmapStringHighlight(str, 20, 0);
-        ofDrawBitmapStringHighlight(ofToString(val), 20, 15);
-        ofDrawRectangle(20, 20, 300 * val, 30);
-
-        ofNoFill();
-        ofDrawRectangle(20, 20, 300, 30);
-        ofFill();
-
-        ofTranslate(0, 70);
-    }
-
-    ofPopMatrix();
-    
     
     // Draw GUI
 //    gui.draw();
@@ -224,7 +196,57 @@ void ofApp::draw(){
     ofPopStyle();
     
     
-//    cout<< timeCounter << endl;
+    // Draw value bars
+    ofPushMatrix();
+    ofTranslate(ofGetWidth() - 400, 100);
+    
+    for (int i = 0; i < 4; i++) {
+        ofSetColor(255);
+        
+        string str;
+        float val;
+        switch (i) {
+            case 0:
+                str = "BIG SMILE";
+                val = bigSmileValue.value();
+                break;
+            case 1:
+                str = "SMALL SMILE";
+                val = smallSmileValue.value();
+                break;
+            case 2:
+                str = "OOO MOUTH";
+                val = oValue.value();
+                break;
+            case 3:
+                str = "NEUTRAL MOUTH";
+                val = neutralValue.value();
+                break;
+        }
+        
+        //        ofDrawBitmapStringHighlight(str, 20, 0);
+        //        ofDrawBitmapStringHighlight(ofToString(val), 20, 15);
+        
+        ofSetColor(ofColor::fromHsb((i+1) * 70, 255, 255));
+        font3.drawString(str, 20, -30);
+        font3.drawString(ofToString(val), 20, 10);
+        
+        ofSetColor(ofColor::fromHsb((i+1) * 70, 255, 255));
+        ofDrawRectangle(20, 20, 350 * val, 80);
+        
+        ofSetColor(255);
+        ofImageType(OF_IMAGE_COLOR_ALPHA);
+        emojis[i].draw(350 * val - imgSize/2, 15, imgSize, imgSize);
+        
+        ofNoFill();
+        ofSetColor(ofColor::yellow);
+        ofDrawRectangle(20, 20, 350, 80);
+        ofFill();
+        
+        ofTranslate(0, 200);
+    }
+    
+    ofPopMatrix();
 }
 
 
@@ -236,6 +258,7 @@ void ofApp::addModelToFace()
     //Move the models down when scaled for full screen
     ofTranslate(-x_offset, ofGetHeight()/5);
     ofScale(2.5, 2.5);
+    
 //    ofTranslate(- x_offset, 0, 0);
 //    ofScale(2, 2);
     
@@ -618,7 +641,7 @@ void ofApp::setupStrings()
 {
     n_strings.push_back("Zzzzzzzzzzzzzzz");
     n_strings.push_back("What are you???");
-    n_strings.push_back("Nah...");
+    n_strings.push_back("Nap time!");
     n_strings.push_back("Play with me");
     n_strings.push_back("Smile! Smile!");
     n_strings.push_back("Are you real?");
@@ -628,29 +651,35 @@ void ofApp::setupStrings()
     n_strings.push_back("Dance with me");
     n_strings.push_back("What are you?");
     n_strings.push_back("Lalalalalalalala la.");
-    n_strings.push_back("Oh okay");
-    n_strings.push_back("la la la...");
+    n_strings.push_back("ha ha ha...");
     n_strings.push_back("hello world");
     n_strings.push_back("Meow?");
+    n_strings.push_back("Blow your cheeks!");
+    n_strings.push_back("You are a good robot");
+    n_strings.push_back("Did you wash your face?");
     
     
     ss_strings.push_back("Whatever.");
-    ss_strings.push_back("Purrrrrrr.");
+    ss_strings.push_back("Gimme your eyebrow");
     ss_strings.push_back("How are you?");
-    ss_strings.push_back("Tell me something funny");
+    ss_strings.push_back("Tell me something fun");
     ss_strings.push_back("Show me how to laugh");
     ss_strings.push_back("Show me your teeth");
     ss_strings.push_back("Let's talk with face");
+    ss_strings.push_back("I love daydreaming");
+    ss_strings.push_back("g'night");
+    
     
     bs_strings.push_back("What's sanity?");
     bs_strings.push_back("Blah blah blah blah blah.");
     bs_strings.push_back("What did you say?");
-    bs_strings.push_back("I like nightmares");
+    bs_strings.push_back("I like nightmares!");
     bs_strings.push_back("Look at you!");
     bs_strings.push_back("Cool");
     bs_strings.push_back("Shhhhhhhhhhh");
     bs_strings.push_back("yay...");
     bs_strings.push_back("Let's scream together");
+    
     
     o_strings.push_back("What surprises you?");
     o_strings.push_back("What do you like?");
@@ -661,7 +690,11 @@ void ofApp::setupStrings()
     o_strings.push_back("Blah blah.");
     o_strings.push_back("OH WOWW");
     o_strings.push_back("BAM BAM BAM");
-
+    o_strings.push_back("Gimme your nose");
+    o_strings.push_back("You are robot");
+    o_strings.push_back("You need face massage");
+    o_strings.push_back("Do you bring me booze?");
+    o_strings.push_back("I need a party");
     
     
     cout << "n_strings size: " << n_strings.size() << endl;
@@ -754,7 +787,7 @@ void ofApp::setUpModels()
     n_mdls.push_back(mdl12);
     
     mdl13.loadModel("thmsfrndfc low.dae");
-    mdl13.setPosition(0, 1000, 0);
+    mdl13.setPosition(-300, 1000, 0);
     mdl13.setRotation(0, 270, 0, 1, 0);
     //    mdl13.setRotation(0, 20, 1, 0, 0);
     mdl13.setScale(1, 1, 1);
@@ -780,6 +813,21 @@ void ofApp::setUpModels()
     //    mdl16.setRotation(0, 20, 1, 0, 0);
     mdl16.setScale(1, 1, 1);
     n_mdls.push_back(mdl16);
+    
+    mdl17.loadModel("Bone.dae");
+    mdl17.setPosition(0, 0, 0);
+//    mdl17.setRotation(0, 100, 0, 1, 0);
+//    mdl17.setRotation(0, 20, 1, 0, 0);
+    mdl17.setScale(2, 2, 2);
+    n_mdls.push_back(mdl17);
+    
+    mdl18.loadModel("Skull.dae");
+    mdl18.setPosition(0, 0, 0);
+    //    mdl18.setRotation(0, 100, 0, 1, 0);
+    //    mdl18.setRotation(0, 20, 1, 0, 0);
+    mdl18.setScale(1, 1, 1);
+    n_mdls.push_back(mdl18);
+    
     
     light.setPosition(lx, ly, lz);
     cam.setDistance(500);
