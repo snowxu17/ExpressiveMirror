@@ -18,7 +18,7 @@ void ofApp::setup(){
 
     // Setup grabber
 //    grabber.listDevices();
-    grabber.setDeviceID(1);
+//    grabber.setDeviceID(1);
     grabber.setup(grabber_w,grabber_h);
 
     // Setup tracker
@@ -44,8 +44,8 @@ void ofApp::setup(){
     bubble.setImageType(OF_IMAGE_COLOR_ALPHA);
     
     // Load Font
-    font.load("BABYK___.TTF", 80);
-    font2.load("Sketch 3D.otf", 150);
+    font.load("BABYK___.TTF", 140);
+    font2.load("Sketch 3D.otf", 100);
     
     // Set up Kalman
     kalman.init(1/10000., 1/10.);
@@ -56,7 +56,7 @@ void ofApp::setup(){
     // Strings setup
     setupStrings();
     
-    strColor = ofColor::fromHsb(ofRandom(255), 255, 255);
+    ofBackground(0);
     
 }
 
@@ -95,12 +95,13 @@ void ofApp::draw(){
     
     // Draw background
     ofSetColor(255);
-//    ofPushMatrix();
-//    ofScale(img.getWidth()/w, (img.getHeight()/h)/3);
+    ofPushMatrix();
+    ofScale(3, 3);
+    ofScale(img.getWidth()/w, (img.getHeight()/h)/3);
 //    img.draw(0, 0, 1080, 1920);
-//    ofPopMatrix();
+    ofPopMatrix();
     
-    grabber.draw(0, 0);
+//    grabber.draw(0, 0);
 //    texture.draw(0,0);
     
 //    ofPushMatrix();
@@ -158,7 +159,7 @@ void ofApp::draw(){
     
     
     // Draw GUI
-    gui.draw();
+//    gui.draw();
     
     
     // Draw particles
@@ -201,7 +202,8 @@ void ofApp::draw(){
     ofPushStyle();
     ofPushMatrix();
     
-    ofTranslate(ofGetWidth()/5, ofGetHeight() * 0.9);
+//    ofScale(2, 2);
+    ofTranslate(ofGetWidth()/10, ofGetHeight() * 0.95);
     
     float time = ofGetElapsedTimef();
     float scale = 0.5 + ofNoise(time/2)/4;
@@ -212,11 +214,11 @@ void ofApp::draw(){
     ofTranslate(x, y);
     ofScale(scale, scale);
 
-    ofSetColor(ofColor::black);
-    font.drawString("Spot your imaginary friend", 10, 10);
+    ofSetColor(ofColor::purple);
+    font.drawString("Meet your imaginary friend", 10, 10);
     
     ofSetColor(ofColor::red);
-    font.drawString("Spot your imaginary friend", 0, 0);
+    font.drawString("Meet your imaginary friend", 0, 0);
     
     ofPopMatrix();
     ofPopStyle();
@@ -231,10 +233,16 @@ void ofApp::addModelToFace()
     ofPushStyle();
     ofPushMatrix();
     
+    //Move the models down when scaled for full screen
+    ofTranslate(-x_offset, ofGetHeight()/5);
+    ofScale(2.5, 2.5);
 //    ofTranslate(- x_offset, 0, 0);
 //    ofScale(2, 2);
     
-    tracker.drawDebugPose();
+    // Draw 3D coordinate debug pose
+//    tracker.drawDebugPose();
+    
+    
 //    int numFaces = tracker.size();
 //    cout << "numFaces: " << numFaces << endl;
 //    cout << "isTracking : " << isTracking << endl;
@@ -343,7 +351,7 @@ void ofApp::drawStrings()
     ofPushMatrix();
     ofPushStyle();
     
-    ofTranslate(-600, 300);
+    ofTranslate(-300, 300);
     ofScale(.5, .5);
     font2.drawString(str, 0, 0);
     
@@ -479,9 +487,9 @@ void ofApp::switchState()
 void ofApp::setupParticles()
 {
     // The width, height and depth of our bounding cube.
-    boundingSize = { 1500, 2000, 400 };
+    boundingSize = { 1500, 2500, 400 };
     
-    int numParticles = 100;
+    int numParticles = 200;
     
     for (int i = 0; i < numParticles; i++)
     {
@@ -608,32 +616,41 @@ sample_type ofApp::makeSample(){
 
 void ofApp::setupStrings()
 {
-    n_strings.push_back("Purrrrrrr.");
+    n_strings.push_back("Zzzzzzzzzzzzzzz");
     n_strings.push_back("What are you???");
     n_strings.push_back("Nah...");
     n_strings.push_back("Play with me");
     n_strings.push_back("Smile! Smile!");
     n_strings.push_back("Are you real?");
     n_strings.push_back("Show me your teeth");
+    n_strings.push_back("There goes my sanity");
+    n_strings.push_back("Show me your moves");
     n_strings.push_back("Dance with me");
     n_strings.push_back("What are you?");
-    n_strings.push_back("Guess what I'm thinking?");
+    n_strings.push_back("Lalalalalalalala la.");
     n_strings.push_back("Oh okay");
     n_strings.push_back("la la la...");
+    n_strings.push_back("hello world");
+    n_strings.push_back("Meow?");
     
+    
+    ss_strings.push_back("Whatever.");
+    ss_strings.push_back("Purrrrrrr.");
     ss_strings.push_back("How are you?");
     ss_strings.push_back("Tell me something funny");
     ss_strings.push_back("Show me how to laugh");
     ss_strings.push_back("Show me your teeth");
     ss_strings.push_back("Let's talk with face");
     
-    bs_strings.push_back("What's your source of sanity?");
-    bs_strings.push_back("Blah blah blah blah blah. ");
-    bs_strings.push_back("What are you laughing at?");
+    bs_strings.push_back("What's sanity?");
+    bs_strings.push_back("Blah blah blah blah blah.");
+    bs_strings.push_back("What did you say?");
+    bs_strings.push_back("I like nightmares");
     bs_strings.push_back("Look at you!");
     bs_strings.push_back("Cool");
-    bs_strings.push_back("Do I look like your worst nightmare?");
+    bs_strings.push_back("Shhhhhhhhhhh");
     bs_strings.push_back("yay...");
+    bs_strings.push_back("Let's scream together");
     
     o_strings.push_back("What surprises you?");
     o_strings.push_back("What do you like?");
@@ -743,14 +760,26 @@ void ofApp::setUpModels()
     mdl13.setScale(1, 1, 1);
     o_mdls.push_back(mdl13);
     
-    mdl14.loadModel("Brain.dae");
-    mdl14.setPosition(0, 200, 0);
-    mdl14.setRotation(0, 100, 0, 1, 0);
+    mdl14.loadModel("Pilow_HP.dae");
+    mdl14.setPosition(0, 0, 0);
+    //mdl14.setRotation(0, 100, 0, 1, 0);
     //    mdl14.setRotation(0, 20, 1, 0, 0);
     mdl14.setScale(1, 1, 1);
-    ss_mdls.push_back(mdl14);
+    n_mdls.push_back(mdl14);
     
+    mdl15.loadModel("Apple.dae");
+    mdl15.setPosition(0, 0, 0);
+//    mdl15.setRotation(0, 100, 0, 1, 0);
+    //    mdl15.setRotation(0, 20, 1, 0, 0);
+    mdl15.setScale(1, 1, 1);
+    n_mdls.push_back(mdl15);
     
+    mdl16.loadModel("Dagger.dae");
+    mdl16.setPosition(0, 0, 0);
+//    mdl16.setRotation(0, 100, 0, 1, 0);
+    //    mdl16.setRotation(0, 20, 1, 0, 0);
+    mdl16.setScale(1, 1, 1);
+    n_mdls.push_back(mdl16);
     
     light.setPosition(lx, ly, lz);
     cam.setDistance(500);

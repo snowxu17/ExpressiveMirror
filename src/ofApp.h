@@ -75,6 +75,9 @@ public:
     ofxAssimpModelLoader mdl12;
     ofxAssimpModelLoader mdl13;
     ofxAssimpModelLoader mdl14;
+    ofxAssimpModelLoader mdl15;
+    ofxAssimpModelLoader mdl16;
+    
     
     std::vector<ofxAssimpModelLoader> n_mdls;
     std::vector<ofxAssimpModelLoader> ss_mdls;
@@ -137,7 +140,7 @@ public:
     ofTrueTypeFont font;
     ofTrueTypeFont font2;
 
-    float x_offset = grabber_w/4;
+    float x_offset = grabber_w/3;
     float y_offset;
 
     ofColor strColor;
