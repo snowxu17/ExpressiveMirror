@@ -1,3 +1,9 @@
+//// IMAGINARY FRIEND MATCHER (IFM) AUGUST 2018
+//// CREATED BY SNOW XU (snowxushinuo.com) @ VIACOM EXPERIENCE ROOM
+//// IFM analyzes audiences' facial expression to activate matching imaginary friends
+//// Installed on Experience Room smart mirror using Mac Mini 2014
+//// Made with OpenFramework v0.10.0_osx using ofxFaceTracker2, ofxCv, ofxDilib, etc.; for more info, see addons.make file)
+
 #include "ofApp.h"
 //--------------------------------------------------------------
 void ofApp::setup(){
@@ -18,7 +24,7 @@ void ofApp::setup(){
 
     // Setup grabber
 //    grabber.listDevices();
-//    grabber.setDeviceID(1);
+//    grabber.setDeviceID(1); // If using another a second camera
     grabber.setup(grabber_w,grabber_h);
 
     // Setup tracker
@@ -29,7 +35,6 @@ void ofApp::setup(){
     gui.add(lx.setup("light x", 1200, 0, 5000));
     gui.add(ly.setup("light y", 200, 0, 5000));
     gui.add(lz.setup("light z", 1000, 0, 5000));
-    
     gui.add(px.setup("model trans x", 0, -ofGetWidth(), ofGetWidth()));
     gui.add(py.setup("model trans y", 500, -ofGetHeight(), ofGetHeight()));
     gui.add(pz.setup("model trabs z", 350, -1000, 1000));
@@ -40,8 +45,6 @@ void ofApp::setup(){
     
     // Load image
     img.load("grid.jpg");
-    bubble.load("Bubble.png");
-    bubble.setImageType(OF_IMAGE_COLOR_ALPHA);    
     
     bs.load("bs.png");
     ss.load("ss.png");
@@ -53,13 +56,12 @@ void ofApp::setup(){
     emojis.push_back(o);
     emojis.push_back(n);
     
-    
     // Load Font
-    font.load("BABYK___.TTF", 140);
-    font2.load("Sketch 3D.otf", 100);
-    font3.load("Sketch 3D.otf", 25);
+    font.load("BABYK___.TTF", 140); // For bottom red text
+    font2.load("Sketch 3D.otf", 100); // For conversation text
+    font3.load("Sketch 3D.otf", 25); // For emoji bar text
     
-    // Set up Kalman
+    // Set up Kalman smoothing filter
     kalman.init(1/10000., 1/10.);
     
     // Particle setup
@@ -68,6 +70,7 @@ void ofApp::setup(){
     // Strings setup
     setupStrings();
     
+    // Set background color black
     ofBackground(0);
     
 }
@@ -130,7 +133,7 @@ void ofApp::draw(){
 #endif
     
     
-    // Draw GUI
+    // Draw GUI for debug
 //    gui.draw();
     
     
@@ -152,7 +155,7 @@ void ofApp::draw(){
     ofPopMatrix();
     
     
-    // Draw 3D models
+    // Draw 3D models for face
     ofEnableDepthTest();
     
     ofEnableLighting();
@@ -170,11 +173,10 @@ void ofApp::draw(){
     ofDisableDepthTest();
     
     
-    // Draw font
+    // Draw bottom text
     ofPushStyle();
     ofPushMatrix();
     
-//    ofScale(2, 2);
     ofTranslate(ofGetWidth()/10, ofGetHeight() * 0.95);
     
     float time = ofGetElapsedTimef();
@@ -196,7 +198,7 @@ void ofApp::draw(){
     ofPopStyle();
     
     
-    // Draw value bars
+    // Draw emoji value bars
     ofPushMatrix();
     ofTranslate(ofGetWidth() - 400, 100);
     
@@ -224,8 +226,8 @@ void ofApp::draw(){
                 break;
         }
         
-        //        ofDrawBitmapStringHighlight(str, 20, 0);
-        //        ofDrawBitmapStringHighlight(ofToString(val), 20, 15);
+//        ofDrawBitmapStringHighlight(str, 20, 0);
+//        ofDrawBitmapStringHighlight(ofToString(val), 20, 15);
         
         ofSetColor(ofColor::fromHsb((i+1) * 70, 255, 255));
         font3.drawString(str, 20, -30);
@@ -255,7 +257,7 @@ void ofApp::addModelToFace()
     ofPushStyle();
     ofPushMatrix();
     
-    //Move the models down when scaled for full screen
+    //Move the models down when full screen
     ofTranslate(-x_offset, ofGetHeight()/5);
     ofScale(2.5, 2.5);
     
@@ -324,7 +326,7 @@ void ofApp::addModelToFace()
 
             kalman.update(pBoundingBox);
             glm::vec3 s_position = kalman.getEstimation();
-//            cout << "sposition: " << s_position << endl;
+            //cout << "sposition: " << s_position << endl;
 
             float s_w_b = 0.70 * s_w_b + 0.3 * w_b;
             //cout<<"smoothed boundingbox width: " << s_w_b <<endl;
@@ -335,11 +337,8 @@ void ofApp::addModelToFace()
             // Draw with kalman-smoothed bounding box
             float scl = s_w_b/ 69;
 
-//            float px = 500; //grabber_w - (s_position.x + 120 * scl);
-//            float py = 500; //s_position.y - 70 * scl;
-//            float pz = s_position.z - 100 * scl;
             ofTranslate(690, 500, 100);
-//            ofTranslate(px,py,pz);
+            // ofTranslate(px,py,pz); // Gui values for debug
 
             cout << "xpos: " << grabber_w - (s_position.x + 120 * scl) << endl;
             cout << "ypos: " << s_position.y - 70 * scl << endl;
@@ -352,6 +351,8 @@ void ofApp::addModelToFace()
             ofTranslate(x,y);
 
             ofScale(1, 1, 1);
+            
+            // Else if to change model scale with face distance
             //ofScale(scl, scl, scl);
 
             mdl.drawFaces();
@@ -377,8 +378,6 @@ void ofApp::drawStrings()
     ofTranslate(-300, 300);
     ofScale(.5, .5);
     font2.drawString(str, 0, 0);
-    
-//    bubble.draw(0, 0, 500, 500);
     
     ofPopStyle();
     ofPopMatrix();
@@ -645,6 +644,7 @@ void ofApp::setupStrings()
     n_strings.push_back("Play with me");
     n_strings.push_back("Smile! Smile!");
     n_strings.push_back("Are you real?");
+    n_strings.push_back("You are a better robot");
     n_strings.push_back("Show me your teeth");
     n_strings.push_back("There goes my sanity");
     n_strings.push_back("Show me your moves");
@@ -655,8 +655,7 @@ void ofApp::setupStrings()
     n_strings.push_back("hello world");
     n_strings.push_back("Meow?");
     n_strings.push_back("Blow your cheeks!");
-    n_strings.push_back("You are a good robot");
-    n_strings.push_back("Did you wash your face?");
+    n_strings.push_back("Show your humanity");
     
     
     ss_strings.push_back("Whatever.");
@@ -795,22 +794,22 @@ void ofApp::setUpModels()
     
     mdl14.loadModel("Pilow_HP.dae");
     mdl14.setPosition(0, 0, 0);
-    //mdl14.setRotation(0, 100, 0, 1, 0);
-    //    mdl14.setRotation(0, 20, 1, 0, 0);
+//    mdl14.setRotation(0, 100, 0, 1, 0);
+//    mdl14.setRotation(0, 20, 1, 0, 0);
     mdl14.setScale(1, 1, 1);
     n_mdls.push_back(mdl14);
     
     mdl15.loadModel("Apple.dae");
     mdl15.setPosition(0, 0, 0);
 //    mdl15.setRotation(0, 100, 0, 1, 0);
-    //    mdl15.setRotation(0, 20, 1, 0, 0);
+//    mdl15.setRotation(0, 20, 1, 0, 0);
     mdl15.setScale(1, 1, 1);
     n_mdls.push_back(mdl15);
     
     mdl16.loadModel("Dagger.dae");
     mdl16.setPosition(0, 0, 0);
 //    mdl16.setRotation(0, 100, 0, 1, 0);
-    //    mdl16.setRotation(0, 20, 1, 0, 0);
+//    mdl16.setRotation(0, 20, 1, 0, 0);
     mdl16.setScale(1, 1, 1);
     n_mdls.push_back(mdl16);
     
@@ -823,13 +822,13 @@ void ofApp::setUpModels()
     
     mdl18.loadModel("Skull.dae");
     mdl18.setPosition(0, 0, 0);
-    //    mdl18.setRotation(0, 100, 0, 1, 0);
-    //    mdl18.setRotation(0, 20, 1, 0, 0);
+//    mdl18.setRotation(0, 100, 0, 1, 0);
+//    mdl18.setRotation(0, 20, 1, 0, 0);
     mdl18.setScale(1, 1, 1);
     n_mdls.push_back(mdl18);
     
     
-    light.setPosition(lx, ly, lz);
+    light.setPosition(lx, ly, lz); // Default values from GUI
     cam.setDistance(500);
     
     cout << "n_mdls count: " << n_mdls.size() << endl;

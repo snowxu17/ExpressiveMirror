@@ -37,24 +37,26 @@ public:
     void setupParticles();
     void updateParticles();
     
-    
     sample_type makeSample();
     
     ofxFaceTracker2 tracker;
+    std::vector<ofxFaceTracker2Instance> instances;
+    
+    // Video grabber & video texture
     ofVideoGrabber grabber;    
     ofTexture texture;
-//    ofPixels pixel;
     
+    // Image setup
     int imgSize = 90;
-    ofImage img;
-    ofImage bubble;
+    ofImage img; // Background texture
+
     ofImage n;
     ofImage ss;
     ofImage bs;
     ofImage o;
-    
     std::vector<ofImage> emojis;
     
+    // Expression values
     ofxBiquadFilter1f neutralValue;
     ofxBiquadFilter1f smallSmileValue;
     ofxBiquadFilter1f bigSmileValue;
@@ -62,9 +64,9 @@ public:
     
     vector<pfunct_type> learned_functions;
     
+    // Kalman soothing filter
     ofxCv::KalmanPosition kalman;
     
-    std::vector<ofxFaceTracker2Instance> instances;
     
     // 3D model setup
     ofxAssimpModelLoader mdl;
@@ -89,30 +91,25 @@ public:
     ofxAssimpModelLoader mdl19;
     ofxAssimpModelLoader mdl20;
     
-    
     std::vector<ofxAssimpModelLoader> n_mdls;
     std::vector<ofxAssimpModelLoader> ss_mdls;
     std::vector<ofxAssimpModelLoader> bs_mdls;
     std::vector<ofxAssimpModelLoader> o_mdls;
     
+    // Conversation strings
     string str;
-    
     std::vector<string> n_strings;
     std::vector<string> ss_strings;
     std::vector<string> bs_strings;
     std::vector<string> o_strings;
-    
-    ofLight    light;
-    
-    // stores the info on the current file.
-    string curFileInfo;
-    
+
+    // Lighting & camera
+    ofLight light;
     ofEasyCam cam;
     
     // Particle setup
     std::vector<Particle> particles;
     glm::vec3 boundingSize;
-    
     
     //GUI setup
     ofxPanel gui;
@@ -120,7 +117,6 @@ public:
     ofxFloatSlider rx, ry, rz;
     ofxFloatSlider px, py, pz;
     ofxFloatSlider size;
-    
     
     // State setup
     bool changeState = false;
@@ -140,6 +136,8 @@ public:
     float threshold = 1000.;
     float timeCounter = 0;
     
+    bool isTracking = true;
+    
     // Grabber setup
     int grabber_w = 1920;
     int grabber_h = 1080;
@@ -147,15 +145,11 @@ public:
     int w = ofGetWidth();
     int h = ofGetHeight();
     
+    float x_offset = grabber_w/3;
+    
     // Font
     ofTrueTypeFont font;
     ofTrueTypeFont font2;
     ofTrueTypeFont font3;
-
-    float x_offset = grabber_w/3;
-    float y_offset;
-
-    ofColor strColor;
     
-    bool isTracking = true;
 };
