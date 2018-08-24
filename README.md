@@ -10,5 +10,12 @@ August, 2018
 ## HOW TO RUN: ##
 * Go to ImaginaryFriendMatcher/bin/ and select ImaginaryFriendMatcher app. Enter full screen mode for desired performances.
 
+## FUTURE POTENTIAL: ##
+* Adding IP
+* Themed interaction
+* Group tracking
+* Improve facial recognition by adjusting camera
+
 ## NOTE: ##
 * Make sure room lighting is bright enough for face detection.
+* All 3D models are open-sourced and personally altered for this project.
